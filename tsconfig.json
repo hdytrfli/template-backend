@@ -3,19 +3,23 @@
     /* file layout */
     "rootDir": "./src",
     "outDir": "./dist",
+
     /* environment settings */
     "module": "preserve",
     "moduleResolution": "bundler",
     "target": "esnext",
     "lib": ["esnext"],
     "types": ["node"],
+
     /* other outputs */
     "sourceMap": true,
     "declaration": true,
     "declarationMap": true,
+
     /* stricter typechecking options */
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
+
     /* style options */
     "noImplicitReturns": true,
     "noImplicitOverride": true,
@@ -23,6 +27,7 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "noPropertyAccessFromIndexSignature": true,
+
     /* recommended options */
     "strict": true,
     "jsx": "react-jsx",
@@ -31,6 +36,8 @@
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
     "skipLibCheck": true,
+    "ignoreDeprecations": "6.0",
+
     /* absolute imports */
     "paths": {
       "@/*": ["./src/*"]

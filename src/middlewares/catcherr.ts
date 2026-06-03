@@ -25,7 +25,7 @@ export const catcherr = (err: Error, req: Request, res: AppResponse<null>) => {
   if (err instanceof ZodError) {
     return res.status(400).json({
       success: false,
-      error: z.prettifyError(err),
+      error: z.flattenError(err),
       message: 'Validation failed',
     });
   }

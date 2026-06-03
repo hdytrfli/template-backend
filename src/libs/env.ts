@@ -4,6 +4,8 @@ import { fileURLToPath } from 'node:url';
 import * as dotenv from 'dotenv';
 import * as z from 'zod';
 
+import { log } from '@/libs/logger';
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
@@ -34,8 +36,9 @@ const envSchema = z.object({
 const { success, error, data } = envSchema.safeParse(process.env);
 
 if (!success) {
-  const message = z.prettifyError(error);
-  console.error('Invalid environment variables:', message);
+  const message = z.flattenError(error);
+  console.error('Invalid environment variables');
+  console.error(message);
   process.exit(1);
 }
 

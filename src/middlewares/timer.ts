@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from 'express';
 
 /**
- * Records request start time and sets X-Response-Time header before response is sent.
+ * Records request start, end and duration and sets header before response is sent.
  */
 export const timer = (_req: Request, res: Response, next: NextFunction) => {
   const startInt = process.hrtime.bigint();

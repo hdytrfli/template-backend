@@ -3,7 +3,7 @@ import type { Response } from 'express';
 export type AppResponse<T> = Response<{
   success: boolean;
   data?: T;
-  error?: string;
+  error?: Record<string, any>;
   message?: string;
 }>;
 
