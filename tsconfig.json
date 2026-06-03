@@ -1,0 +1,39 @@
+{
+  "compilerOptions": {
+    /* file layout */
+    "rootDir": "./src",
+    "outDir": "./dist",
+    /* environment settings */
+    "module": "preserve",
+    "moduleResolution": "bundler",
+    "target": "esnext",
+    "lib": ["esnext"],
+    "types": ["node"],
+    /* other outputs */
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true,
+    /* stricter typechecking options */
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    /* style options */
+    "noImplicitReturns": true,
+    "noImplicitOverride": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "noPropertyAccessFromIndexSignature": true,
+    /* recommended options */
+    "strict": true,
+    "jsx": "react-jsx",
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+    "noUncheckedSideEffectImports": true,
+    "moduleDetection": "force",
+    "skipLibCheck": true,
+    /* absolute imports */
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  }
+}

@@ -1,0 +1,42 @@
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+import * as dotenv from 'dotenv';
+import * as z from 'zod';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+dotenv.config({
+  path: resolve(__dirname, '../../.env'),
+  quiet: true,
+});
+
+const environtments = ['development', 'production', 'test'] as const;
+const levels = ['debug', 'info', 'warn', 'error'] as const;
+
+const validateMongoUri = (value: string) => {
+  return value.startsWith('mongodb://') || value.startsWith('mongodb+srv://');
+};
+
+const envSchema = z.object({
+  APPLICATION: z.string().default('my-app'),
+  BIND: z.string().default('0.0.0.0'),
+  LEVEL: z.enum(levels).default('debug'),
+  PORT: z.coerce.number().default(3000),
+  ORIGIN: z.url().default('http://localhost:5173'),
+  NODE_ENV: z.enum(environtments).default('development'),
+  MONGODB_URI: z.string().refine(validateMongoUri, {
+    message: 'MONGODB_URI must start with mongodb:// or mongodb+srv://',
+  }),
+});
+
+const { success, error, data } = envSchema.safeParse(process.env);
+
+if (!success) {
+  const message = z.prettifyError(error);
+  console.error('Invalid environment variables:', message);
+  process.exit(1);
+}
+
+export const env = data;

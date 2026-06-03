@@ -1,0 +1,40 @@
+import type { Request } from 'express';
+import { z, ZodError } from 'zod';
+
+import { AppError } from '@/helpers/error';
+import type { AppResponse } from '@/helpers/response';
+import { env } from '@/libs/env';
+import { log } from '@/libs/logger';
+
+/**
+ * Middleware to catch error that happen inside request and response handler
+ */
+export const catcherr = (err: Error, req: Request, res: AppResponse<null>) => {
+  res.locals['message'] = err.message;
+  res.locals['error'] = env.NODE_ENV === 'development' && err;
+
+  log.error({
+    path: req.path,
+    method: req.method,
+    message: err.message,
+  });
+
+  console.log('Testing');
+  log.error(typeof err);
+
+  if (err instanceof ZodError) {
+    return res.status(400).json({
+      success: false,
+      error: z.prettifyError(err),
+      message: 'Validation failed',
+    });
+  }
+
+  if (err instanceof AppError) res.status(err.code);
+  else res.status(500);
+
+  return res.json({
+    success: false,
+    message: err.message,
+  });
+};
