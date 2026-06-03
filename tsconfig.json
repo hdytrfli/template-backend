@@ -1,4 +1,5 @@
 {
+  "exclude": ["dist", "tsup.config.ts"],
   "compilerOptions": {
     /* file layout */
     "rootDir": "./src",
@@ -13,12 +14,9 @@
 
     /* other outputs */
     "sourceMap": true,
-    "declaration": true,
-    "declarationMap": true,
 
     /* stricter typechecking options */
     "noUncheckedIndexedAccess": true,
-    "exactOptionalPropertyTypes": true,
 
     /* style options */
     "noImplicitReturns": true,

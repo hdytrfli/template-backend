@@ -1,6 +1,7 @@
 import { Router, type Request } from 'express';
 
 import type { AppResponse } from '@/helpers/response';
+import authRouter from '@/routers/v1/auth.route';
 import debugRouter from '@/routers/v1/debug.route';
 import userRouter from '@/routers/v1/user.route';
 
@@ -20,6 +21,7 @@ router.get('/ping', (_req: Request, res: AppResponse<null>) => {
   });
 });
 
+router.use('/auth', authRouter);
 router.use('/users', userRouter);
 router.use('/healthcheck', debugRouter);
 

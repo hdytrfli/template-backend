@@ -23,6 +23,12 @@ const schema = new Schema<PrivateUserDTO>(
     autoIndex: false,
     timestamps: true,
     optimisticConcurrency: true,
+    toJSON: {
+      transform(_doc, ret) {
+        const { password: _, ...rest } = ret;
+        return rest;
+      },
+    },
   },
 );
 

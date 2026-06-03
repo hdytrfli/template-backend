@@ -4,8 +4,6 @@ import { fileURLToPath } from 'node:url';
 import * as dotenv from 'dotenv';
 import * as z from 'zod';
 
-import { log } from '@/libs/logger';
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
