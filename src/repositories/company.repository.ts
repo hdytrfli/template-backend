@@ -4,6 +4,6 @@ import { BaseRepository } from '@/repositories/base.repository';
 
 export class CompanyRepository extends BaseRepository<CompanyDTO> {
   constructor() {
-    super(Company);
+    super(Company, ['createdBy']);
   }
 }

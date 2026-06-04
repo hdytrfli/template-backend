@@ -10,15 +10,13 @@ const schema = new Schema<CompanyDTO>(
     companyType: { type: String, required: true },
     createdBy: {
       type: Schema.Types.ObjectId,
-      autopopulate: { select: 'username name email' },
-      ref: 'user',
+      ref: 'User',
     },
     deleted: { type: Boolean, default: false },
     deletedAt: { type: Date },
     deletedBy: {
       type: Schema.Types.ObjectId,
-      autopopulate: { select: 'username name email' },
-      ref: 'user',
+      ref: 'User',
     },
   },
   {

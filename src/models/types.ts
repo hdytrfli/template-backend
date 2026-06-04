@@ -1,6 +1,6 @@
 import type { Types } from 'mongoose';
 
-export type FilterKeys<T> = Array<keyof T>;
+export type FilterKeys<T> = Array<Extract<keyof T, string>>;
 
 export type PaginationParams = {
   page?: number;
