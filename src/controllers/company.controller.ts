@@ -5,23 +5,21 @@ import type { CompanyDTO } from '@/models/types';
 import { CompanyRepository } from '@/repositories/company.repository';
 
 const createCompanySchema = z.object({
-  username: z.string().min(3).max(50),
-  password: z.string().min(6).max(128),
-  name: z.string().min(1).max(100),
-  level: z.string().min(1),
-  email: z.email().optional(),
-  phone: z.string().optional(),
+  name: z.string().min(1).max(200),
+  country: z.string().min(1).max(100),
+  email: z.string().email(),
+  companyType: z.string().min(1).max(100),
 });
 
 const updateCompanySchema = z.object({
-  name: z.string().min(1).max(100).optional(),
-  level: z.string().min(1).optional(),
-  email: z.email().optional(),
-  phone: z.string().optional(),
+  name: z.string().min(1).max(200).optional(),
+  country: z.string().min(1).max(100).optional(),
+  email: z.string().email().optional(),
+  companyType: z.string().min(1).max(100).optional(),
 });
 
 /**
- * Controller to handle user related data.
+ * Controller to handle company related data.
  */
 export class CompanyController extends BaseController<
   CompanyDTO,
@@ -29,6 +27,10 @@ export class CompanyController extends BaseController<
   z.infer<typeof updateCompanySchema>
 > {
   constructor() {
-    super(new CompanyRepository(), createCompanySchema, updateCompanySchema, ['name', 'email']);
+    super(new CompanyRepository(), createCompanySchema, updateCompanySchema, [
+      'name',
+      'country',
+      'companyType',
+    ]);
   }
 }

@@ -27,7 +27,7 @@ export class BaseRepository<T> {
 
   async create(data: Partial<T>) {
     const doc = await this.model.create(data);
-    log.info('[%s] new resource created with id %s', this.name, doc._id);
+    log.info('[repository] new %s created with id %s', this.name, doc._id);
     return doc;
   }
 
@@ -45,13 +45,13 @@ export class BaseRepository<T> {
 
   async update(filter: QueryFilter<T>, data: UpdateQuery<T>) {
     const doc = await this.model.findOneAndUpdate(filter, data, { new: true });
-    if (doc) log.info('[%s] resource updated with id %s', this.name, doc._id);
+    if (doc) log.info('[repository] %s updated with id %s', this.name, doc._id);
     return doc;
   }
 
   async delete(filter: QueryFilter<T>) {
     const doc = await this.model.findOneAndDelete(filter);
-    if (doc) log.info('[%s] resource deleted with id %s', this.name, doc._id);
+    if (doc) log.info('[repository] %s deleted with id %s', this.name, doc._id);
     return doc;
   }
 }
