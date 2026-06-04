@@ -49,14 +49,14 @@ type LoginData = TokenPair & {
   user: UserDTO;
 };
 
+/**
+ * Controller to handle authentication related data.
+ */
 export class AuthController {
   private auth = new AuthService();
   private users = new UserRepository();
 
-  /**
-   * Register a new user account
-   */
-  async register(req: Request, res: AppResponse<LoginData>) {
+  register = async (req: Request, res: AppResponse<LoginData>) => {
     const data = registerSchema.parse(req.body);
     const user = await this.users.create({
       username: data.username,
@@ -69,19 +69,16 @@ export class AuthController {
 
     const tokens = this.auth.generateTokens(user.id, user.level);
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       data: {
         user,
         ...tokens,
       },
     });
-  }
+  };
 
-  /**
-   * Authenticate user and return tokens
-   */
-  async login(req: Request, res: AppResponse<LoginData>) {
+  login = async (req: Request, res: AppResponse<LoginData>) => {
     const { username, password } = loginSchema.parse(req.body);
 
     const user = await this.users.findByUsername(username);
@@ -91,83 +88,63 @@ export class AuthController {
     if (!matched) throw new UnauthorizedError('Invalid credentials');
 
     const tokens = this.auth.generateTokens(user.id, user.level);
-
-    res.json({
+    return res.json({
       success: true,
       data: {
         user,
         ...tokens,
       },
     });
-  }
+  };
 
-  /**
-   * Issue a new access token using a valid refresh token
-   */
-  async refresh(req: Request, res: AppResponse<TokenPair>) {
+  refresh = async (req: Request, res: AppResponse<TokenPair>) => {
     const { refreshToken } = refreshSchema.parse(req.body);
 
-    let payload;
-    try {
-      payload = this.auth.verifyRefresh(refreshToken);
-    } catch {
-      throw new UnauthorizedError('Invalid or expired refresh token');
-    }
-
+    const payload = this.auth.verifyAccessToken(refreshToken);
     const tokens = this.auth.generateTokens(payload.sub, payload.level);
 
-    res.json({
+    return res.json({
       success: true,
       data: tokens,
     });
-  }
+  };
 
-  /**
-   * Logout (no-op without server-side token storage)
-   */
-  async logout(_req: Request, res: AppResponse<null>) {
-    res.json({
+  logout = async (_req: Request, res: AppResponse<null>) => {
+    return res.json({
       success: true,
       message: 'Logged out',
     });
-  }
+  };
 
-  /**
-   * Change user password
-   */
-  async changePassword(req: Request, res: AppResponse<null>) {
+  changePassword = async (req: Request, res: AppResponse<null>) => {
     const { currentPassword, newPassword } = changePasswordSchema.parse(req.body);
     const { id } = paramsSchema.parse(req.params);
 
     const target = await this.users.findById(id);
     if (!target) throw new NotFoundError('User');
 
-    const isMatch = Hash.compare(currentPassword, target.password);
-    if (!isMatch) throw new UnauthorizedError('Current password is incorrect');
+    const matched = Hash.compare(currentPassword, target.password);
+    if (!matched) throw new UnauthorizedError('Current password is incorrect');
 
     await this.users.updatePassword(id, newPassword);
-
-    res.json({
+    return res.json({
       success: true,
       message: 'Password changed',
     });
-  }
+  };
 
-  /**
-   * Update profile fields (name, email, phone)
-   */
-  async updateProfile(req: Request, res: AppResponse<UserDTO>) {
+  updateProfile = async (req: Request, res: AppResponse<UserDTO>) => {
     const data = updateProfileSchema.parse(req.body);
     const { id } = paramsSchema.parse(req.params);
 
     const user = await this.users.update({ _id: id }, data);
     if (!user) throw new NotFoundError('User');
 
-    res.json({
+    return res.json({
       success: true,
       data: user,
     });
-  }
+  };
 }
 
 export const authController = new AuthController();

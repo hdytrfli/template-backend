@@ -4,8 +4,8 @@ import helmet from 'helmet';
 import { database } from '@/database';
 import { env } from '@/libs/env';
 import { logger, log } from '@/libs/logger';
-import { catchall } from '@/middlewares/catchall';
-import { catcherr } from '@/middlewares/catcherr';
+import { catchall } from '@/middlewares/catch-all';
+import { catcherr } from '@/middlewares/catch-error';
 import { cors } from '@/middlewares/cors';
 import { reqid } from '@/middlewares/reqid';
 import { timer } from '@/middlewares/timer';
@@ -27,8 +27,8 @@ app.use(logger);
 app.use(timer);
 
 app.use('/api/v1', v1);
-app.use(catcherr);
 app.use(catchall);
+app.use(catcherr);
 
 async function main() {
   await database.connect();

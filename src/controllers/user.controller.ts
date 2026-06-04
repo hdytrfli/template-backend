@@ -20,6 +20,9 @@ const updateUserSchema = z.object({
   phone: z.string().optional(),
 });
 
+/**
+ * Controller to handle user related data.
+ */
 export class UserController extends BaseController<
   PrivateUserDTO,
   z.infer<typeof createUserSchema>,

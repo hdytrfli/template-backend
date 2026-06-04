@@ -1,5 +1,6 @@
 import jwt, { type JwtPayload, type SignOptions } from 'jsonwebtoken';
 
+import { UnauthorizedError } from '@/helpers/error';
 import { env } from '@/libs/env';
 
 export type TokenPayload = {
@@ -32,7 +33,11 @@ export class AuthService {
   }
 
   verifyRefreshToken(token: string): VerifiedToken {
-    return jwt.verify(token, this.refreshSecret) as VerifiedToken;
+    try {
+      return jwt.verify(token, this.refreshSecret) as VerifiedToken;
+    } catch {
+      throw new UnauthorizedError('Invalid or expired refresh token');
+    }
   }
 
   generateTokens(userId: string, level: string) {

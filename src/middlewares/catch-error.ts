@@ -1,26 +1,19 @@
-import type { Request } from 'express';
+import type { NextFunction, Request } from 'express';
 import { z, ZodError } from 'zod';
 
 import { AppError } from '@/helpers/error';
 import type { AppResponse } from '@/helpers/response';
-import { env } from '@/libs/env';
 import { log } from '@/libs/logger';
 
 /**
  * Middleware to catch error that happen inside request and response handler
  */
-export const catcherr = (err: Error, req: Request, res: AppResponse<null>) => {
-  res.locals['message'] = err.message;
-  res.locals['error'] = env.NODE_ENV === 'development' && err;
-
+export const catcherr = (err: Error, req: Request, res: AppResponse<null>, _next: NextFunction) => {
   log.error({
     path: req.path,
     method: req.method,
     message: err.message,
   });
-
-  console.log('Testing');
-  log.error(typeof err);
 
   if (err instanceof ZodError) {
     return res.status(400).json({
