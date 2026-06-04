@@ -4,6 +4,9 @@ const SALT_LENGTH = 16;
 const KEY_LENGTH = 64;
 const SCRYPT_OPTIONS = { N: 16384, r: 8, p: 1 } as const;
 
+/**
+ * Helper class for hashing user password
+ */
 export class Hash {
   static hash(password: string): string {
     const salt = randomBytes(SALT_LENGTH).toString('hex');

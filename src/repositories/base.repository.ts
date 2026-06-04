@@ -1,5 +1,8 @@
 import type { QueryFilter, Model, UpdateQuery } from 'mongoose';
 
+import type { PaginationParams } from '@/helpers/pagination';
+import { paginate } from '@/helpers/pagination';
+import type { PaginatedResult } from '@/helpers/response';
 import { log } from '@/libs/logger';
 
 export class BaseRepository<T> {
@@ -9,6 +12,13 @@ export class BaseRepository<T> {
 
   async index(filter: QueryFilter<T> = {}) {
     return this.model.find(filter);
+  }
+
+  async paginate(
+    params: PaginationParams,
+    filter: QueryFilter<T> = {},
+  ): Promise<PaginatedResult<T>> {
+    return paginate(this.model, params, filter);
   }
 
   async create(data: Partial<T>) {

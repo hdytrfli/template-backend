@@ -2,12 +2,20 @@ import type { Request } from 'express';
 import * as z from 'zod';
 
 import { NotFoundError } from '@/helpers/error';
-import type { AppResponse } from '@/helpers/response';
+import { QueryHelper } from '@/helpers/query';
+import type { AppResponse, PaginatedResult } from '@/helpers/response';
 import type { BaseRepository } from '@/repositories/base.repository';
 
 const paramsSchema = z.object({
   id: z.string().length(24),
 });
+
+const querySchema = z
+  .object({
+    page: z.coerce.number().positive().default(1),
+    limit: z.coerce.number().positive().max(100).default(20),
+  })
+  .catchall(z.string());
 
 /**
  * Generic CRUD controller. Subclass with a model type, create schema, and update schema.
@@ -19,12 +27,15 @@ export class BaseController<T, C extends Partial<T>, U extends Partial<T>> {
     protected updateSchema: z.ZodType<U>,
   ) {}
 
-  async index(_req: Request, res: AppResponse<T[]>) {
-    const docs = await this.repository.index();
+  async index(req: Request, res: AppResponse<PaginatedResult<T>>) {
+    const { page, limit, ...filter } = querySchema.parse(req.query);
+
+    const query = QueryHelper.clean(filter);
+    const result = await this.repository.paginate({ page, limit }, query);
 
     res.json({
       success: true,
-      data: docs as T[],
+      data: result,
     });
   }
 

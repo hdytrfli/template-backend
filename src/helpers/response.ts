@@ -7,11 +7,14 @@ export type AppResponse<T> = Response<{
   message?: string;
 }>;
 
-export type PaginatedResponse<T> = AppResponse<T[]> & {
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-  };
+export type PaginationMeta = {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+};
+
+export type PaginatedResult<T> = {
+  data: T[];
+  pagination: PaginationMeta;
 };
