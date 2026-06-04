@@ -14,6 +14,7 @@ import v1 from '@/routers/v1/index.route';
 const app = express();
 const parser = json();
 
+app.set('query parser', 'extended');
 app.use(parser);
 app.use(reqid);
 app.use(cors);

@@ -10,12 +10,11 @@ const paramsSchema = z.object({
   id: z.string().length(24),
 });
 
-const querySchema = z
-  .object({
-    page: z.coerce.number().positive().default(1),
-    limit: z.coerce.number().positive().max(100).default(20),
-  })
-  .catchall(z.string());
+const querySchema = z.object({
+  page: z.coerce.number().positive().default(1),
+  limit: z.coerce.number().positive().max(100).default(20),
+  filter: z.record(z.string(), z.unknown()).optional().default({}),
+});
 
 /**
  * Generic controller for create, read, update and delete.
@@ -25,12 +24,14 @@ export class BaseController<T, C extends Partial<T>, U extends Partial<T>> {
     protected repository: BaseRepository<T>,
     protected createSchema: z.ZodType<C>,
     protected updateSchema: z.ZodType<U>,
+    protected filterFields: string[] = [],
   ) {}
 
   index = async (req: Request, res: PaginatedResponse<T>) => {
-    const { page, limit, ...filter } = querySchema.parse(req.query);
+    const { page, limit, filter } = querySchema.parse(req.query);
 
-    const query = QueryHelper.clean(filter);
+    const built = QueryHelper.build(filter);
+    const query = QueryHelper.clean(built, this.filterFields);
     const { data, pagination } = await this.repository.paginate({ page, limit }, query);
 
     return res.json({

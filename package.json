@@ -13,9 +13,9 @@
     "start": "node dist/index.js",
     "typecheck": "tsgo --noEmit",
     "lint": "oxlint",
-    "format": "oxfmt",
+    "format": "oxfmt --check",
     "lint:fix": "oxlint --fix",
-    "format:check": "oxfmt --check",
+    "format:fix": "oxfmt",
     "check": "tsgo --noEmit && oxlint && oxfmt --check"
   },
   "dependencies": {
