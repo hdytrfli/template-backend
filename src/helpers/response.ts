@@ -1,11 +1,6 @@
 import type { Response } from 'express';
 
-export type PaginationMeta = {
-  page: number;
-  limit: number;
-  total: number;
-  totalPages: number;
-};
+import type { PaginationMeta } from '@/models/types';
 
 type BaseResponse = {
   success: boolean;

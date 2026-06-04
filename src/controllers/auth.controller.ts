@@ -4,7 +4,7 @@ import * as z from 'zod';
 import { NotFoundError, UnauthorizedError } from '@/helpers/error';
 import { Hash } from '@/helpers/hash';
 import type { AppResponse } from '@/helpers/response';
-import type { UserDTO } from '@/models/types';
+import type { LoginData, TokenPair, UserDTO } from '@/models/types';
 import { UserRepository } from '@/repositories/user.repository';
 import { AuthService } from '@/services/auth.service';
 
@@ -39,15 +39,6 @@ const updateProfileSchema = z.object({
 const paramsSchema = z.object({
   id: z.string().length(24),
 });
-
-type TokenPair = {
-  accessToken: string;
-  refreshToken: string;
-};
-
-type LoginData = TokenPair & {
-  user: UserDTO;
-};
 
 /**
  * Controller to handle authentication related data.
@@ -88,6 +79,7 @@ export class AuthController {
     if (!matched) throw new UnauthorizedError('Invalid credentials');
 
     const tokens = this.auth.generateTokens(user.id, user.level);
+
     return res.json({
       success: true,
       data: {
