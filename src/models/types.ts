@@ -1,5 +1,7 @@
 import type { Types } from 'mongoose';
 
+export type FilterKeys<T> = Array<keyof T>;
+
 export type PaginationParams = {
   page?: number;
   limit?: number;
