@@ -5,7 +5,8 @@ import { NotFoundError, UnauthorizedError } from '@/helpers/error';
 import { Hash } from '@/helpers/hash';
 import type { AppResponse } from '@/helpers/response';
 import type { UserDTO } from '@/models/types';
-import { userService } from '@/services/user.service';
+import { UserRepository } from '@/repositories/user.repository';
+import { AuthService } from '@/services/auth.service';
 
 const registerSchema = z.object({
   username: z.string().min(3).max(50),
@@ -18,6 +19,10 @@ const registerSchema = z.object({
 const loginSchema = z.object({
   username: z.string().min(1),
   password: z.string().min(1),
+});
+
+const refreshSchema = z.object({
+  refreshToken: z.string().min(1),
 });
 
 const changePasswordSchema = z.object({
@@ -35,13 +40,25 @@ const paramsSchema = z.object({
   id: z.string().length(24),
 });
 
+type TokenPair = {
+  accessToken: string;
+  refreshToken: string;
+};
+
+type LoginData = TokenPair & {
+  user: UserDTO;
+};
+
 export class AuthController {
+  private auth = new AuthService();
+  private users = new UserRepository();
+
   /**
    * Register a new user account
    */
-  async register(req: Request, res: AppResponse<UserDTO>) {
+  async register(req: Request, res: AppResponse<LoginData>) {
     const data = registerSchema.parse(req.body);
-    const user = await userService.create({
+    const user = await this.users.create({
       username: data.username,
       password: data.password,
       name: data.name,
@@ -50,44 +67,86 @@ export class AuthController {
       phone: data.phone,
     });
 
+    const tokens = this.auth.generateTokens(user.id, user.level);
+
     res.status(201).json({
       success: true,
-      data: user,
+      data: {
+        user,
+        ...tokens,
+      },
     });
   }
 
   /**
-   * Authenticate user and return profile
+   * Authenticate user and return tokens
    */
-  async login(req: Request, res: AppResponse<UserDTO>) {
+  async login(req: Request, res: AppResponse<LoginData>) {
     const { username, password } = loginSchema.parse(req.body);
 
-    const user = await userService.findByUsername(username);
+    const user = await this.users.findByUsername(username);
     if (!user) throw new NotFoundError('User');
 
     const matched = Hash.compare(password, user.password);
     if (!matched) throw new UnauthorizedError('Invalid credentials');
 
+    const tokens = this.auth.generateTokens(user.id, user.level);
+
     res.json({
       success: true,
-      data: user,
+      data: {
+        user,
+        ...tokens,
+      },
     });
   }
 
   /**
-   * Change authenticated user's password
+   * Issue a new access token using a valid refresh token
+   */
+  async refresh(req: Request, res: AppResponse<TokenPair>) {
+    const { refreshToken } = refreshSchema.parse(req.body);
+
+    let payload;
+    try {
+      payload = this.auth.verifyRefresh(refreshToken);
+    } catch {
+      throw new UnauthorizedError('Invalid or expired refresh token');
+    }
+
+    const tokens = this.auth.generateTokens(payload.sub, payload.level);
+
+    res.json({
+      success: true,
+      data: tokens,
+    });
+  }
+
+  /**
+   * Logout (no-op without server-side token storage)
+   */
+  async logout(_req: Request, res: AppResponse<null>) {
+    res.json({
+      success: true,
+      message: 'Logged out',
+    });
+  }
+
+  /**
+   * Change user password
    */
   async changePassword(req: Request, res: AppResponse<null>) {
     const { currentPassword, newPassword } = changePasswordSchema.parse(req.body);
     const { id } = paramsSchema.parse(req.params);
 
-    const target = await userService.findById(id);
+    const target = await this.users.findById(id);
     if (!target) throw new NotFoundError('User');
 
     const isMatch = Hash.compare(currentPassword, target.password);
     if (!isMatch) throw new UnauthorizedError('Current password is incorrect');
 
-    await userService.updatePassword(id, newPassword);
+    await this.users.updatePassword(id, newPassword);
+
     res.json({
       success: true,
       message: 'Password changed',
@@ -101,7 +160,7 @@ export class AuthController {
     const data = updateProfileSchema.parse(req.body);
     const { id } = paramsSchema.parse(req.params);
 
-    const user = await userService.update(id, data);
+    const user = await this.users.update({ _id: id }, data);
     if (!user) throw new NotFoundError('User');
 
     res.json({

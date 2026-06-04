@@ -1,10 +1,11 @@
 import { Router } from 'express';
 
-import { userController } from '@/controllers/user.controller';
+import { UserController } from '@/controllers/user.controller';
 
 const router: Router = Router();
+const userController = new UserController();
 
-router.get('/', userController.list);
+router.get('/', userController.index);
 router.get('/:id', userController.findById);
 router.post('/', userController.create);
 router.patch('/:id', userController.update);
