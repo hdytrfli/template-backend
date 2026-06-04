@@ -12,11 +12,8 @@ const schema = new Schema<PrivateUserDTO>(
     phone: { type: String, default: '' },
     lastLogin: { type: Date },
     createdBy: {
-      ref: 'user',
+      ref: 'User',
       type: Schema.Types.ObjectId,
-      autopopulate: {
-        select: 'username name email',
-      },
     },
   },
   {

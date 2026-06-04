@@ -1,19 +1,6 @@
 import type { Types } from 'mongoose';
 
-export type UserDTO = {
-  username: string;
-  name: string;
-  level: string;
-  email?: string;
-  phone?: string;
-  lastLogin?: Date;
-  createdBy?: Types.ObjectId;
-};
-
-export type PrivateUserDTO = UserDTO & {
-  password: string;
-};
-export type FilterKeys<T> = Array<keyof T>;
+export type FilterKeys<T> = Array<Extract<keyof T, string>>;
 
 export type PaginationParams = {
   page?: number;
@@ -34,4 +21,29 @@ export type TokenPair = {
 
 export type LoginData = TokenPair & {
   user: UserDTO;
+};
+
+export type UserDTO = {
+  username: string;
+  name: string;
+  level: string;
+  email?: string;
+  phone?: string;
+  lastLogin?: Date;
+  createdBy?: Types.ObjectId;
+};
+
+export type PrivateUserDTO = UserDTO & {
+  password: string;
+};
+
+export type CompanyDTO = {
+  name: string;
+  country: string;
+  email: string;
+  companyType: string;
+  createdBy?: Types.ObjectId;
+  deleted: boolean;
+  deletedAt?: Date;
+  deletedBy?: Types.ObjectId;
 };
