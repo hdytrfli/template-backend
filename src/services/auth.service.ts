@@ -29,7 +29,11 @@ export class AuthService {
   }
 
   verifyAccessToken(token: string): TokenPayload {
-    return jwt.verify(token, this.secret) as TokenPayload;
+    try {
+      return jwt.verify(token, this.secret) as TokenPayload;
+    } catch {
+      throw new UnauthorizedError('Invalid or expired refresh token');
+    }
   }
 
   verifyRefreshToken(token: string): VerifiedToken {

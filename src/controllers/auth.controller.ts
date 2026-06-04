@@ -1,7 +1,7 @@
 import type { Request } from 'express';
 import * as z from 'zod';
 
-import { NotFoundError, UnauthorizedError } from '@/helpers/error';
+import { ConflictError, NotFoundError, UnauthorizedError } from '@/helpers/error';
 import { Hash } from '@/helpers/hash';
 import type { AppResponse } from '@/helpers/response';
 import type { LoginData, TokenPair, UserDTO } from '@/models/types';
@@ -49,9 +49,13 @@ export class AuthController {
 
   register = async (req: Request, res: AppResponse<LoginData>) => {
     const data = registerSchema.parse(req.body);
+
+    const check = await this.users.findByUsername(data.username);
+    if (check) throw new ConflictError();
+
     const user = await this.users.create({
       username: data.username,
-      password: data.password,
+      password: Hash.hash(data.password),
       name: data.name,
       level: 'user',
       email: data.email,
@@ -79,6 +83,7 @@ export class AuthController {
     if (!matched) throw new UnauthorizedError('Invalid credentials');
 
     const tokens = this.auth.generateTokens(user.id, user.level);
+    await this.users.update({ _id: user.id }, { lastLogin: new Date() });
 
     return res.json({
       success: true,

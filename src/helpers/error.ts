@@ -25,8 +25,14 @@ export class ValidationError extends AppError {
   }
 }
 
+export class ConflictError extends AppError {
+  constructor(message: string = 'Data already exists or violates duplicate constraint') {
+    super(message, 401);
+  }
+}
+
 export class UnauthorizedError extends AppError {
-  constructor(message: string = 'Authentication required') {
+  constructor(message: string = 'Authentication token required') {
     super(message, 401);
   }
 }
@@ -38,7 +44,7 @@ export class ForbiddenError extends AppError {
 }
 
 export class UninmplementedError extends AppError {
-  constructor(message: string = 'This endpoint is not implemented yet') {
+  constructor(message: string = 'This function is not implemented yet') {
     super(message, 501);
   }
 }

@@ -23,11 +23,15 @@ export const catcherr = (err: Error, req: Request, res: ErrorResponse, _next: Ne
     });
   }
 
-  if (err instanceof AppError) res.status(err.code);
-  else res.status(500);
+  if (err instanceof AppError) {
+    return res.status(err.code).json({
+      success: false,
+      message: err.message,
+    });
+  }
 
-  return res.json({
+  return res.status(500).json({
     success: false,
-    message: err.message,
+    message: 'Server error',
   });
 };
