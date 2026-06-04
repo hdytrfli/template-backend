@@ -4,6 +4,7 @@ import * as z from 'zod';
 import { NotFoundError } from '@/helpers/error';
 import { QueryHelper } from '@/helpers/query';
 import type { AppResponse, PaginatedResponse } from '@/helpers/response';
+import type { FilterKeys } from '@/models/types';
 import type { BaseRepository } from '@/repositories/base.repository';
 
 const paramsSchema = z.object({
@@ -24,7 +25,7 @@ export class BaseController<T, C extends Partial<T>, U extends Partial<T>> {
     protected repository: BaseRepository<T>,
     protected createSchema: z.ZodType<C>,
     protected updateSchema: z.ZodType<U>,
-    protected filterFields: string[] = [],
+    protected filterFields: FilterKeys<T> = [],
   ) {}
 
   index = async (req: Request, res: PaginatedResponse<T>) => {

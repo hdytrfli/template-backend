@@ -13,6 +13,7 @@ export type UserDTO = {
 export type PrivateUserDTO = UserDTO & {
   password: string;
 };
+export type FilterKeys<T> = Array<keyof T>;
 
 export type PaginationParams = {
   page?: number;

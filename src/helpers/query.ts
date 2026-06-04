@@ -1,6 +1,6 @@
 import type { QueryFilter } from 'mongoose';
 
-import { log } from '@/libs/logger';
+import type { FilterKeys } from '@/models/types';
 
 type OperatorMapper = (value: string) => Record<string, unknown>;
 
@@ -35,15 +35,12 @@ export class QueryHelper {
     const result: Record<string, unknown> = {};
 
     for (const [key, value] of Object.entries(filter)) {
-      log.info(key, value);
-
       if (typeof value === 'string') {
         result[key] = { $regex: value, $options: 'i' };
         continue;
       }
 
       if (!value || typeof value !== 'object' || Array.isArray(value)) continue;
-
       const mapped = this.mapOperators(value as Record<string, unknown>);
       if (Object.keys(mapped).length) result[key] = mapped;
     }
@@ -51,16 +48,16 @@ export class QueryHelper {
     return result as QueryFilter<T>;
   }
 
-  static clean<T>(query: QueryFilter<T>, allowed: string[] = []): QueryFilter<T> {
+  static clean<T>(query: QueryFilter<T>, allowed: FilterKeys<T> = []): QueryFilter<T> {
     if (allowed.length === 0) return query;
 
-    const accept = new Set(allowed);
-    const filtered = Object.entries(query).filter(([key]) => {
-      const operator = key.startsWith('$');
-      const allowed = accept.has(key);
-      return !operator && allowed;
-    });
-
-    return Object.fromEntries(filtered) as QueryFilter<T>;
+    const accept = new Set<keyof T>(allowed);
+    return Object.fromEntries(
+      Object.entries(query).filter(([key]) => {
+        const operator = key.startsWith('$');
+        const allowed = accept.has(key as keyof T);
+        return !operator && allowed;
+      }),
+    ) as QueryFilter<T>;
   }
 }
