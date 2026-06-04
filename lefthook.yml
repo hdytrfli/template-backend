@@ -1,0 +1,13 @@
+pre-commit:
+  jobs:
+    - name: check format code
+      run: npm run format {staged_files}
+      glob: '*.{js,ts,jsx,tsx}'
+
+    - name: check code lint
+      run: npm run lint {staged_files}
+      glob: '*.{js,ts,jsx,tsx}'
+
+    - name: typecheck
+      run: npm run typecheck {staged_files}
+      glob: '*.{js,ts,jsx,tsx}'
