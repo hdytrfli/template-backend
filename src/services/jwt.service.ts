@@ -10,7 +10,7 @@ export type TokenPayload = {
 
 type VerifiedToken = TokenPayload & JwtPayload;
 
-export class AuthService {
+export class JWTService {
   private secret = env.JWT_SECRET;
   private refreshSecret = env.JWT_REFRESH_SECRET;
   private accessExpires = env.JWT_ACCESS_EXPIRES_IN as SignOptions['expiresIn'];

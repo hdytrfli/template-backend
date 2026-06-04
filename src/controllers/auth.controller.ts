@@ -6,7 +6,7 @@ import { Hash } from '@/helpers/hash';
 import type { AppResponse } from '@/helpers/response';
 import type { LoginData, TokenPair, UserDTO } from '@/models/types';
 import { UserRepository } from '@/repositories/user.repository';
-import { AuthService } from '@/services/auth.service';
+import { JWTService } from '@/services/jwt.service';
 
 const registerSchema = z.object({
   username: z.string().min(3).max(50),
@@ -44,18 +44,18 @@ const paramsSchema = z.object({
  * Controller to handle authentication related data.
  */
 export class AuthController {
-  private auth = new AuthService();
-  private users = new UserRepository();
+  private auth = new JWTService();
+  private respository = new UserRepository();
 
   register = async (req: Request, res: AppResponse<LoginData>) => {
     const data = registerSchema.parse(req.body);
 
-    const check = await this.users.findByUsername(data.username);
+    const check = await this.respository.findByUsername(data.username);
     if (check) throw new ConflictError();
 
-    const user = await this.users.create({
+    const user = await this.respository.create({
       username: data.username,
-      password: Hash.hash(data.password),
+      password: data.password,
       name: data.name,
       level: 'user',
       email: data.email,
@@ -76,14 +76,14 @@ export class AuthController {
   login = async (req: Request, res: AppResponse<LoginData>) => {
     const { username, password } = loginSchema.parse(req.body);
 
-    const user = await this.users.findByUsername(username);
+    const user = await this.respository.findByUsername(username);
     if (!user) throw new NotFoundError('User');
 
     const matched = Hash.compare(password, user.password);
     if (!matched) throw new UnauthorizedError('Invalid credentials');
 
     const tokens = this.auth.generateTokens(user.id, user.level);
-    await this.users.update({ _id: user.id }, { lastLogin: new Date() });
+    await this.respository.update({ _id: user.id }, { lastLogin: new Date() });
 
     return res.json({
       success: true,
@@ -117,13 +117,13 @@ export class AuthController {
     const { currentPassword, newPassword } = changePasswordSchema.parse(req.body);
     const { id } = paramsSchema.parse(req.params);
 
-    const target = await this.users.findById(id);
+    const target = await this.respository.findById(id);
     if (!target) throw new NotFoundError('User');
 
     const matched = Hash.compare(currentPassword, target.password);
     if (!matched) throw new UnauthorizedError('Current password is incorrect');
 
-    await this.users.updatePassword(id, newPassword);
+    await this.respository.updatePassword(id, newPassword);
     return res.json({
       success: true,
       message: 'Password changed',
@@ -134,7 +134,7 @@ export class AuthController {
     const data = updateProfileSchema.parse(req.body);
     const { id } = paramsSchema.parse(req.params);
 
-    const user = await this.users.update({ _id: id }, data);
+    const user = await this.respository.update({ _id: id }, data);
     if (!user) throw new NotFoundError('User');
 
     return res.json({

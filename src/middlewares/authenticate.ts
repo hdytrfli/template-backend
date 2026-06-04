@@ -1,14 +1,14 @@
 import type { NextFunction, Request, Response } from 'express';
 
 import { UnauthorizedError } from '@/helpers/error';
-import { AuthService } from '@/services/auth.service';
+import { JWTService } from '@/services/jwt.service';
 
 /**
  * Middleware that verifies the Bearer token from the Authorization header
  * and attaches the decoded payload to `req.user`.
  */
 export const authenticate = (req: Request, _res: Response, next: NextFunction) => {
-  const auth = new AuthService();
+  const auth = new JWTService();
   const header = req.headers.authorization;
 
   if (!header) throw new UnauthorizedError();

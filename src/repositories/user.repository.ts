@@ -5,7 +5,7 @@ import { BaseRepository } from '@/repositories/base.repository';
 
 export class UserRepository extends BaseRepository<PrivateUserDTO> {
   constructor() {
-    super(User, ['createdBy']);
+    super(User, 'user', ['createdBy']);
   }
 
   override async create(data: PrivateUserDTO) {
