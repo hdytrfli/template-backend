@@ -28,7 +28,6 @@ export class MongoDatabase extends Database {
       serverSelectionTimeoutMS: 5000,
       sanitizeFilter: true,
     });
-
     mongoose.set('strictQuery', true);
   }
 

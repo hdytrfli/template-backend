@@ -2,13 +2,13 @@ import type { NextFunction, Request } from 'express';
 import { z, ZodError } from 'zod';
 
 import { AppError } from '@/helpers/error';
-import type { AppResponse } from '@/helpers/response';
+import type { ErrorResponse } from '@/helpers/response';
 import { log } from '@/libs/logger';
 
 /**
  * Middleware to catch error that happen inside request and response handler
  */
-export const catcherr = (err: Error, req: Request, res: AppResponse<null>, _next: NextFunction) => {
+export const catcherr = (err: Error, req: Request, res: ErrorResponse, _next: NextFunction) => {
   log.error({
     path: req.path,
     method: req.method,

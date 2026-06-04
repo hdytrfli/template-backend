@@ -20,7 +20,6 @@ const schema = new Schema<PrivateUserDTO>(
     },
   },
   {
-    autoIndex: false,
     timestamps: true,
     optimisticConcurrency: true,
     toJSON: {
