@@ -1,3 +1,5 @@
+import { env } from '@/libs/env';
+
 /* pagination constants */
 export const DEFAULT_PAGE = 1;
 export const DEFAULT_LIMIT = 20;
@@ -16,4 +18,14 @@ export const OPERATORS: Record<string, OperatorMapper> = {
   lte: (v) => ({ $lte: Number(v) }),
   lt: (v) => ({ $lt: Number(v) }),
   in: (v) => ({ $in: v.split(',') }),
+};
+
+/* auth cookie option */
+export const COOKIE_OPTIONS = {
+  httpOnly: true,
+  path: '/api/v1/auth',
+  sameSite: 'strict' as const,
+  maxAge: 7 * 24 * 60 * 60 * 1000,
+  secure: env.NODE_ENV === 'production',
+  signed: true,
 };

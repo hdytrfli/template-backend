@@ -1,11 +1,10 @@
 import type { Types } from 'mongoose';
 
-export type TokenPair = {
+export type AuthToken = {
   accessToken: string;
-  refreshToken: string;
 };
 
-export type LoginData = TokenPair & {
+export type LoginData = AuthToken & {
   user: UserDTO;
 };
 

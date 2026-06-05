@@ -3,10 +3,12 @@ import * as z from 'zod';
 
 import { ConflictError, NotFoundError, UnauthorizedError } from '@/helpers/error';
 import { Hash } from '@/helpers/hash';
+import { COOKIE_OPTIONS } from '@/libs/constant';
+import { env } from '@/libs/env';
 import { UserRepository } from '@/repositories/user.repository';
 import { JWTService } from '@/services/jwt.service';
 import { QueueService } from '@/services/queue.service';
-import type { LoginData, TokenPair, UserDTO } from '@/types/model';
+import type { LoginData, AuthToken, UserDTO } from '@/types/model';
 import type { AppResponse } from '@/types/response';
 
 const registerSchema = z.object({
@@ -20,10 +22,6 @@ const registerSchema = z.object({
 const loginSchema = z.object({
   username: z.string().min(1),
   password: z.string().min(1),
-});
-
-const refreshSchema = z.object({
-  refreshToken: z.string().min(1),
 });
 
 const changePasswordSchema = z.object({
@@ -73,11 +71,12 @@ export class AuthController {
       });
     }
 
+    res.cookie(env.COOKIE_REFRESH_KEY, tokens.refreshToken, COOKIE_OPTIONS);
     return res.status(201).json({
       success: true,
       data: {
         user,
-        ...tokens,
+        accessToken: tokens.accessToken,
       },
     });
   };
@@ -94,28 +93,39 @@ export class AuthController {
     const tokens = this.auth.generateTokens(user.id, user.level);
     await this.respository.update({ _id: user.id }, { lastLogin: new Date() });
 
+    res.cookie(env.COOKIE_REFRESH_KEY, tokens.refreshToken, COOKIE_OPTIONS);
     return res.json({
       success: true,
       data: {
         user,
-        ...tokens,
+        accessToken: tokens.accessToken,
       },
     });
   };
 
-  refresh = async (req: Request, res: AppResponse<TokenPair>) => {
-    const { refreshToken } = refreshSchema.parse(req.body);
+  refresh = async (req: Request, res: AppResponse<AuthToken>) => {
+    const refreshToken = req.signedCookies?.[env.COOKIE_REFRESH_KEY];
+    if (!refreshToken) throw new UnauthorizedError('No refresh token');
 
-    const payload = this.auth.verifyAccessToken(refreshToken);
+    const payload = this.auth.verifyRefreshToken(refreshToken);
     const tokens = this.auth.generateTokens(payload.sub, payload.level);
 
+    res.cookie(env.COOKIE_REFRESH_KEY, tokens.refreshToken, COOKIE_OPTIONS);
     return res.json({
       success: true,
-      data: tokens,
+      data: { accessToken: tokens.accessToken },
     });
   };
 
+  profile = async (req: Request, res: AppResponse<UserDTO>) => {
+    const user = await this.respository.findById(req.user.sub);
+    if (!user) throw new NotFoundError('User');
+    return res.json({ success: true, data: user });
+  };
+
   logout = async (_req: Request, res: AppResponse<null>) => {
+    res.clearCookie(env.COOKIE_REFRESH_KEY, COOKIE_OPTIONS);
+
     return res.json({
       success: true,
       message: 'Logged out',

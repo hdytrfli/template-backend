@@ -3,10 +3,11 @@ import base from 'cors';
 import { env } from '@/libs/env';
 
 /**
- * CORS middleware configuration
+ * Cross origin resource configuration
  */
 export const cors = base({
   origin: env.ORIGIN,
+  credentials: true,
   methods: ['GET', 'POST', 'HEAD', 'OPTIONS'],
   allowedHeaders: [
     'Accept',

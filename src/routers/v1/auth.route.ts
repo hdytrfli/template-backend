@@ -10,7 +10,10 @@ router.post('/register', authController.register);
 router.post('/login', authController.login);
 router.post('/refresh', authController.refresh);
 router.post('/logout', authController.logout);
-router.patch('/:id/password', authenticate, authController.changePassword);
-router.patch('/:id/profile', authenticate, authController.updateProfile);
+
+router.use(authenticate);
+router.get('/profile', authController.profile);
+router.patch('/:id/password', authController.changePassword);
+router.patch('/:id/profile', authController.updateProfile);
 
 export const authRouter = router;

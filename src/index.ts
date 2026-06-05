@@ -8,6 +8,7 @@ import { env } from '@/libs/env';
 import { logger, log } from '@/libs/logger';
 import { catchall } from '@/middlewares/catch-all';
 import { catcherr } from '@/middlewares/catch-error';
+import { cookie } from '@/middlewares/cookie';
 import { cors } from '@/middlewares/cors';
 import { reqid } from '@/middlewares/reqid';
 import { timer } from '@/middlewares/timer';
@@ -22,6 +23,7 @@ const parser = json();
 
 app.set('query parser', 'extended');
 app.use(parser);
+app.use(cookie);
 app.use(reqid);
 app.use(cors);
 app.use(
