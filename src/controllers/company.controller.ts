@@ -1,8 +1,8 @@
 import * as z from 'zod';
 
 import { BaseController } from '@/controllers/base.controller';
-import type { CompanyDTO } from '@/models/types';
 import { CompanyRepository } from '@/repositories/company.repository';
+import type { CompanyDTO } from '@/types/model';
 
 const createCompanySchema = z.object({
   name: z.string().min(1).max(200),

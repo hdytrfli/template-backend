@@ -1,13 +1,23 @@
+output:
+  - summary
+  - success
+  - failure
+  - execution
+  - execution_out
+  - skips
+
+no_tty: true
+
 pre-commit:
   jobs:
     - name: check format code
-      run: npm run format {staged_files}
+      run: pnpm run format {staged_files}
       glob: '*.{js,ts,jsx,tsx}'
 
     - name: check code lint
-      run: npm run lint {staged_files}
+      run: pnpm run lint {staged_files}
       glob: '*.{js,ts,jsx,tsx}'
 
     - name: typecheck
-      run: npm run typecheck {staged_files}
+      run: pnpm run typecheck
       glob: '*.{js,ts,jsx,tsx}'

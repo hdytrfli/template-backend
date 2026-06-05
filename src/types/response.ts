@@ -1,6 +1,6 @@
 import type { Response } from 'express';
 
-import type { PaginationMeta } from '@/models/types';
+import type { PaginationMeta } from '@/types/util';
 
 type BaseResponse = {
   success: boolean;

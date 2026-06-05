@@ -3,10 +3,10 @@ import * as z from 'zod';
 
 import { ConflictError, NotFoundError, UnauthorizedError } from '@/helpers/error';
 import { Hash } from '@/helpers/hash';
-import type { AppResponse } from '@/helpers/response';
-import type { LoginData, TokenPair, UserDTO } from '@/models/types';
 import { UserRepository } from '@/repositories/user.repository';
 import { JWTService } from '@/services/jwt.service';
+import type { LoginData, TokenPair, UserDTO } from '@/types/model';
+import type { AppResponse } from '@/types/response';
 
 const registerSchema = z.object({
   username: z.string().min(3).max(50),

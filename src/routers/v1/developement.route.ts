@@ -1,9 +1,9 @@
 import { Router, type Request } from 'express';
 
 import { Hash } from '@/helpers/hash';
-import type { AppResponse } from '@/helpers/response';
 import { Company } from '@/models/company';
 import { User } from '@/models/user';
+import type { AppResponse } from '@/types/response';
 
 const router: Router = Router();
 

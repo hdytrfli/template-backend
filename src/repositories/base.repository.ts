@@ -1,9 +1,9 @@
 import type { QueryFilter, Model, UpdateQuery } from 'mongoose';
 
 import { Paginator } from '@/helpers/paginator';
-import type { PaginatedResult } from '@/helpers/response';
 import { log } from '@/libs/logger';
-import type { FilterKeys, PaginationParams } from '@/models/types';
+import type { PaginatedResult } from '@/types/response';
+import type { FilterKeys, PaginationParams } from '@/types/util';
 
 export class BaseRepository<T> {
   constructor(

@@ -1,6 +1,6 @@
 import { Schema, model } from 'mongoose';
 
-import type { CompanyDTO } from '@/models/types';
+import type { CompanyDTO } from '@/types/model';
 
 const schema = new Schema<CompanyDTO>(
   {

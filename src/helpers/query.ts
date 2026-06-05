@@ -1,26 +1,10 @@
 import type { QueryFilter } from 'mongoose';
 
-import type { FilterKeys } from '@/models/types';
-
-type OperatorMapper = (value: string) => Record<string, unknown>;
-
-const OPERATORS: Record<string, OperatorMapper> = {
-  regex: (v) => ({ $regex: v, $options: 'i' }),
-  ne: (v) => ({ $ne: v }),
-  gte: (v) => ({ $gte: Number(v) }),
-  gt: (v) => ({ $gt: Number(v) }),
-  lte: (v) => ({ $lte: Number(v) }),
-  lt: (v) => ({ $lt: Number(v) }),
-  in: (v) => ({ $in: v.split(',') }),
-};
+import { OPERATORS } from '@/libs/constant';
+import type { FilterKeys } from '@/types/util';
 
 /**
- * Build a Mongoose filter from bracket-notation query params (qs-parse output).
- *
- * - `?filter[name]=admin`           → `{ name: { $regex: 'admin', $options: 'i' } }`
- * - `?filter[name][regex]=admin`    → `{ name: { $regex: 'admin', $options: 'i' } }`
- * - `?filter[name][ne]=admin`       → `{ name: { $ne: 'admin' } }`
- * - `?filter[age][gte]=18`          → `{ age: { $gte: 18 } }`
+ * Build a Mongoose filter from bracket-notation query params.
  */
 export class QueryHelper {
   private static mapOperators(value: Record<string, unknown>) {

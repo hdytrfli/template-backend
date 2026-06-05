@@ -3,9 +3,9 @@ import * as z from 'zod';
 
 import { NotFoundError } from '@/helpers/error';
 import { QueryHelper } from '@/helpers/query';
-import type { AppResponse, PaginatedResponse } from '@/helpers/response';
-import type { FilterKeys } from '@/models/types';
 import type { BaseRepository } from '@/repositories/base.repository';
+import type { AppResponse, PaginatedResponse } from '@/types/response';
+import type { FilterKeys } from '@/types/util';
 
 const paramsSchema = z.object({
   id: z.string().length(24),

@@ -1,8 +1,8 @@
 import * as z from 'zod';
 
 import { BaseController } from '@/controllers/base.controller';
-import type { PrivateUserDTO } from '@/models/types';
 import { UserRepository } from '@/repositories/user.repository';
+import type { PrivateUserDTO } from '@/types/model';
 
 const createUserSchema = z.object({
   username: z.string().min(3).max(50),

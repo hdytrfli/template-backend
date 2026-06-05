@@ -1,8 +1,8 @@
 import type { Model, QueryFilter } from 'mongoose';
 
-import { DEFAULT_LIMIT, DEFAULT_PAGE, MAX_LIMIT, MIN_LIMIT, MIN_PAGE } from '@/helpers/constant';
-import type { PaginatedResult } from '@/helpers/response';
-import type { FilterKeys, PaginationParams } from '@/models/types';
+import { DEFAULT_LIMIT, DEFAULT_PAGE, MAX_LIMIT, MIN_LIMIT, MIN_PAGE } from '@/libs/constant';
+import type { PaginatedResult } from '@/types/response';
+import type { FilterKeys, PaginationParams } from '@/types/util';
 
 /**
  * Execute a paginated query on a Mongoose model.

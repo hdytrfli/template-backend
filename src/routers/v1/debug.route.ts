@@ -1,7 +1,7 @@
 import { Router, type Request } from 'express';
 
 import { database } from '@/database';
-import type { AppResponse } from '@/helpers/response';
+import type { AppResponse } from '@/types/response';
 
 const router: Router = Router();
 

@@ -1,7 +1,7 @@
 import { Hash } from '@/helpers/hash';
-import type { PrivateUserDTO } from '@/models/types';
 import { User } from '@/models/user';
 import { BaseRepository } from '@/repositories/base.repository';
+import type { PrivateUserDTO } from '@/types/model';
 
 export class UserRepository extends BaseRepository<PrivateUserDTO> {
   constructor() {

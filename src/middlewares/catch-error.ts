@@ -2,8 +2,8 @@ import type { NextFunction, Request } from 'express';
 import { z, ZodError } from 'zod';
 
 import { AppError } from '@/helpers/error';
-import type { ErrorResponse } from '@/helpers/response';
 import { log } from '@/libs/logger';
+import type { ErrorResponse } from '@/types/response';
 
 /**
  * Middleware to catch error that happen inside request and response handler

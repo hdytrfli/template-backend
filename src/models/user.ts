@@ -1,6 +1,6 @@
 import { Schema, model } from 'mongoose';
 
-import type { PrivateUserDTO } from '@/models/types';
+import type { PrivateUserDTO } from '@/types/model';
 
 const schema = new Schema<PrivateUserDTO>(
   {
