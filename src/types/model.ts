@@ -9,6 +9,11 @@ export type LoginData = TokenPair & {
   user: UserDTO;
 };
 
+export type MailRecipient = {
+  email: string;
+  name: string;
+};
+
 export type UserDTO = {
   username: string;
   name: string;

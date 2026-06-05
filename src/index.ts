@@ -1,7 +1,9 @@
+import { createServer } from 'http';
+
 import express, { json } from 'express';
 import helmet from 'helmet';
 
-import { database } from '@/database';
+import { database, redis } from '@/database';
 import { env } from '@/libs/env';
 import { logger, log } from '@/libs/logger';
 import { catchall } from '@/middlewares/catch-all';
@@ -10,6 +12,10 @@ import { cors } from '@/middlewares/cors';
 import { reqid } from '@/middlewares/reqid';
 import { timer } from '@/middlewares/timer';
 import v1 from '@/routers/v1/index.route';
+import { QueueService } from '@/services/queue.service';
+import { socket } from '@/services/socket.service';
+import '@/workers/mail.worker';
+import '@/workers/welcome.worker';
 
 const app = express();
 const parser = json();
@@ -31,9 +37,13 @@ app.use('/api/v1', v1);
 app.use(catchall);
 app.use(catcherr);
 
+const server = createServer(app);
+
 async function main() {
   await database.connect();
-  app.listen(env.PORT, env.BIND, () => {
+  await redis.connect();
+  socket.connect(server);
+  server.listen(env.PORT, env.BIND, () => {
     log.info('[system] server is running on http://%s:%d', env.BIND, env.PORT);
   });
 }
@@ -45,6 +55,15 @@ main().catch((err) => {
 
 process.on('SIGINT', async () => {
   log.info('[system] shutting down...');
-  await database.disconnect();
+
+  const promises = [
+    database.disconnect(),
+    QueueService.cleanup(),
+    redis.disconnect(),
+    socket.disconnect(),
+    //
+  ];
+
+  await Promise.all(promises);
   process.exit(0);
 });

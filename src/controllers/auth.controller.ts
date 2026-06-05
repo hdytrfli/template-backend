@@ -5,6 +5,7 @@ import { ConflictError, NotFoundError, UnauthorizedError } from '@/helpers/error
 import { Hash } from '@/helpers/hash';
 import { UserRepository } from '@/repositories/user.repository';
 import { JWTService } from '@/services/jwt.service';
+import { QueueService } from '@/services/queue.service';
 import type { LoginData, TokenPair, UserDTO } from '@/types/model';
 import type { AppResponse } from '@/types/response';
 
@@ -32,7 +33,7 @@ const changePasswordSchema = z.object({
 
 const updateProfileSchema = z.object({
   name: z.string().min(1).max(100).optional(),
-  email: z.string().email().optional(),
+  email: z.email().optional(),
   phone: z.string().optional(),
 });
 
@@ -63,6 +64,14 @@ export class AuthController {
     });
 
     const tokens = this.auth.generateTokens(user.id, user.level);
+
+    if (user.email) {
+      await QueueService.get('welcome').add('send-welcome', {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+      });
+    }
 
     return res.status(201).json({
       success: true,

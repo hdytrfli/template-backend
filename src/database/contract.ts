@@ -9,3 +9,11 @@ export abstract class Database {
   abstract disconnect(): Promise<void>;
   abstract healthcheck(): Promise<boolean>;
 }
+
+export abstract class KeyValue<TClient> {
+  abstract readonly client: TClient;
+
+  abstract connect(): Promise<void>;
+  abstract disconnect(): Promise<void>;
+  abstract healthcheck(): Promise<boolean>;
+}
