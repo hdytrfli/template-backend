@@ -5,6 +5,7 @@ import { ConflictError, NotFoundError, UnauthorizedError } from '@/helpers/error
 import { Hash } from '@/helpers/hash';
 import { UserRepository } from '@/repositories/user.repository';
 import { JWTService } from '@/services/jwt.service';
+import { QueueService } from '@/services/queue.service';
 import type { LoginData, TokenPair, UserDTO } from '@/types/model';
 import type { AppResponse } from '@/types/response';
 
@@ -63,6 +64,12 @@ export class AuthController {
     });
 
     const tokens = this.auth.generateTokens(user.id, user.level);
+
+    await QueueService.get('welcome').add('send-welcome', {
+      userId: user.id,
+      username: user.username,
+      email: data.email,
+    });
 
     return res.status(201).json({
       success: true,
