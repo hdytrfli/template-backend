@@ -11,4 +11,4 @@ router.post('/', companyController.create);
 router.patch('/:id', companyController.update);
 router.delete('/:id', companyController.delete);
 
-export default router;
+export const companyRouter = router;

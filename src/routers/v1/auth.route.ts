@@ -13,4 +13,4 @@ router.post('/logout', authController.logout);
 router.patch('/:id/password', authenticate, authController.changePassword);
 router.patch('/:id/profile', authenticate, authController.updateProfile);
 
-export default router;
+export const authRouter = router;

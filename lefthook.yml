@@ -11,11 +11,11 @@ no_tty: true
 pre-commit:
   jobs:
     - name: check format code
-      run: pnpm run format {staged_files}
+      run: pnpm run format
       glob: '*.{js,ts,jsx,tsx}'
 
     - name: check code lint
-      run: pnpm run lint {staged_files}
+      run: pnpm run lint
       glob: '*.{js,ts,jsx,tsx}'
 
     - name: typecheck

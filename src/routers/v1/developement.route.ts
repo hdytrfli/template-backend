@@ -88,4 +88,4 @@ router.get('/seed/companies', async (_req: Request, res: AppResponse<null>) => {
   });
 });
 
-export default router;
+export const developmentRouter = router;

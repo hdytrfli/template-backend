@@ -28,4 +28,4 @@ router.get('/healthcheck', async (_req: Request, res: AppResponse<RepositoryRepo
   });
 });
 
-export default router;
+export const debugRouter = router;
