@@ -33,7 +33,7 @@ const changePasswordSchema = z.object({
 
 const updateProfileSchema = z.object({
   name: z.string().min(1).max(100).optional(),
-  email: z.string().email().optional(),
+  email: z.email().optional(),
   phone: z.string().optional(),
 });
 
@@ -67,6 +67,7 @@ export class AuthController {
 
     if (user.email) {
       await QueueService.get('welcome').add('send-welcome', {
+        id: user.id,
         name: user.name,
         email: user.email,
       });

@@ -12,7 +12,10 @@ new QueueWorker(
     filtered.forEach(async (recipient, index) => {
       try {
         await mailService.send({
-          to: { address: recipient.email, name: recipient.name },
+          to: {
+            address: recipient.email,
+            name: recipient.name,
+          },
           subject,
           text: body,
         });

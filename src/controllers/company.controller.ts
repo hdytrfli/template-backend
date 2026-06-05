@@ -7,14 +7,14 @@ import type { CompanyDTO } from '@/types/model';
 const createCompanySchema = z.object({
   name: z.string().min(1).max(200),
   country: z.string().min(1).max(100),
-  email: z.string().email(),
+  email: z.email(),
   companyType: z.string().min(1).max(100),
 });
 
 const updateCompanySchema = z.object({
   name: z.string().min(1).max(200).optional(),
   country: z.string().min(1).max(100).optional(),
-  email: z.string().email().optional(),
+  email: z.email().optional(),
   companyType: z.string().min(1).max(100).optional(),
 });
 

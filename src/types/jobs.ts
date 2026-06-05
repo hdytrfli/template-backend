@@ -8,7 +8,9 @@ export type MailJobData = {
   body: string;
 };
 
-export type WelcomeJobData = MailRecipient;
+export type WelcomeJobData = MailRecipient & {
+  id: string;
+};
 
 export const QUEUE_REGISTER = {
   mail: {} as MailJobData,

@@ -1,3 +1,5 @@
+import { createServer } from 'http';
+
 import express, { json } from 'express';
 import helmet from 'helmet';
 
@@ -11,6 +13,7 @@ import { reqid } from '@/middlewares/reqid';
 import { timer } from '@/middlewares/timer';
 import v1 from '@/routers/v1/index.route';
 import { QueueService } from '@/services/queue.service';
+import { socket } from '@/services/socket.service';
 import '@/workers/mail.worker';
 import '@/workers/welcome.worker';
 
@@ -34,10 +37,13 @@ app.use('/api/v1', v1);
 app.use(catchall);
 app.use(catcherr);
 
+const server = createServer(app);
+
 async function main() {
   await database.connect();
   await redis.connect();
-  app.listen(env.PORT, env.BIND, () => {
+  socket.connect(server);
+  server.listen(env.PORT, env.BIND, () => {
     log.info('[system] server is running on http://%s:%d', env.BIND, env.PORT);
   });
 }
@@ -54,6 +60,7 @@ process.on('SIGINT', async () => {
     database.disconnect(),
     QueueService.cleanup(),
     redis.disconnect(),
+    socket.disconnect(),
     //
   ];
 
