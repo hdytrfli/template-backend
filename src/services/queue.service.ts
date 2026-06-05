@@ -1,28 +1,32 @@
-import { Queue } from 'bullmq';
+import { Queue, type JobsOptions } from 'bullmq';
 
 import { redis } from '@/database';
+import type { QueueJobs } from '@/types/jobs';
+
+type QueueHandle<J> = {
+  add(name: string, data: J, opts?: JobsOptions): ReturnType<Queue['add']>;
+  close(): Promise<void>;
+};
 
 export class QueueService {
-  private static queues = new Map<string, Queue>();
+  private static instances = new Map<string, Queue>();
 
-  static get(name: string): Queue {
-    let queue = this.queues.get(name);
-    if (queue) return queue;
+  static get<N extends keyof QueueJobs>(name: N): QueueHandle<QueueJobs[N]> {
+    let queue = this.instances.get(name);
 
-    queue = new Queue(name, {
-      connection: redis.client as never,
-    });
+    if (!queue) {
+      queue = new Queue(name, { connection: redis.client as never });
+      this.instances.set(name, queue);
+    }
 
-    this.queues.set(name, queue);
-    return queue;
+    return {
+      add: (name, data, opts) => queue!.add(name, data, opts),
+      close: () => queue!.close(),
+    };
   }
 
   static async cleanup() {
-    const values = this.queues.values();
-    const promises = Array.from(values).map((queue) => {
-      return queue.close();
-    });
-    await Promise.all(promises);
-    this.queues.clear();
+    await Promise.all(Array.from(this.instances.values()).map((q) => q.close()));
+    this.instances.clear();
   }
 }

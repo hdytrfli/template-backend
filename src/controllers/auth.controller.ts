@@ -65,11 +65,12 @@ export class AuthController {
 
     const tokens = this.auth.generateTokens(user.id, user.level);
 
-    await QueueService.get('welcome').add('send-welcome', {
-      userId: user.id,
-      username: user.username,
-      email: data.email,
-    });
+    if (user.email) {
+      await QueueService.get('welcome').add('send-welcome', {
+        name: user.name,
+        email: user.email,
+      });
+    }
 
     return res.status(201).json({
       success: true,

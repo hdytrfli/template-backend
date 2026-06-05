@@ -11,6 +11,7 @@ import { reqid } from '@/middlewares/reqid';
 import { timer } from '@/middlewares/timer';
 import v1 from '@/routers/v1/index.route';
 import { QueueService } from '@/services/queue.service';
+import '@/workers/mail.worker';
 import '@/workers/welcome.worker';
 
 const app = express();

@@ -3,6 +3,7 @@ import { Router, type Request } from 'express';
 import { Hash } from '@/helpers/hash';
 import { Company } from '@/models/company';
 import { User } from '@/models/user';
+import { QueueService } from '@/services/queue.service';
 import type { AppResponse } from '@/types/response';
 
 const router: Router = Router();
@@ -25,16 +26,17 @@ router.get('/seed/users', async (_req: Request, res: AppResponse<null>) => {
     },
   ];
 
-  await User.bulkWrite(
-    users.map((user) => ({
+  const upserts = users.map((user) => {
+    return {
       updateOne: {
         filter: { username: user.username },
         update: { $setOnInsert: user },
         upsert: true,
       },
-    })),
-  );
+    };
+  });
 
+  await User.bulkWrite(upserts);
   return res.json({
     success: true,
     message: 'Seed users created successfully',
@@ -73,10 +75,10 @@ router.get('/seed/companies', async (_req: Request, res: AppResponse<null>) => {
   ];
 
   await Company.bulkWrite(
-    companies.map((c) => ({
+    companies.map((company) => ({
       updateOne: {
-        filter: { name: c.name },
-        update: { $setOnInsert: { ...c, createdBy: admin._id } },
+        filter: { name: company.name },
+        update: { $setOnInsert: { ...company, createdBy: admin._id } },
         upsert: true,
       },
     })),
@@ -85,6 +87,38 @@ router.get('/seed/companies', async (_req: Request, res: AppResponse<null>) => {
   return res.json({
     success: true,
     message: 'Seed companies created successfully',
+  });
+});
+
+router.get('/test/email', async (_req: Request, res: AppResponse<null>) => {
+  const users = await User.find({ email: { $exists: true, $ne: '' } })
+    .select('name email username')
+    .lean();
+
+  if (users.length === 0) {
+    return res.status(400).json({
+      success: false,
+      message: 'No users with email found.',
+    });
+  }
+
+  await QueueService.get('mail').add('send-bulk', {
+    type: 'bulk',
+    template: 'generic',
+    subject: 'Hello from the platform!',
+    body: 'This is a test email sent to all users.',
+    recipients: users.map((user) => {
+      return {
+        name: user.name,
+        email: user.email as string,
+        vars: { username: user.username },
+      };
+    }),
+  });
+
+  return res.json({
+    success: true,
+    message: 'Queued email for all users with email',
   });
 });
 
