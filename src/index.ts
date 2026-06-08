@@ -28,8 +28,9 @@ app.use(reqid);
 app.use(cors);
 app.use(
   helmet({
-    contentSecurityPolicy: false,
-    xDownloadOptions: false,
+    xContentTypeOptions: true,
+    contentSecurityPolicy: true,
+    hsts: env.NODE_ENV === 'production',
   }),
 );
 app.use(logger);

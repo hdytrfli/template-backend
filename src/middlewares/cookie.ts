@@ -5,4 +5,4 @@ import { env } from '@/libs/env';
 /**
  * Cookie configuration
  */
-export const cookie = cookieParser(env.COOKIE_SECRET);
+export const cookie: ReturnType<typeof cookieParser> = cookieParser(env.COOKIE_SECRET);

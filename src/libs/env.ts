@@ -13,10 +13,10 @@ const validateMongoUri = (value: string) => {
 };
 
 const envSchema = z.object({
-  APPLICATION: z.string().default('my-app'),
   BIND: z.string().default('0.0.0.0'),
-  LEVEL: z.enum(levels).default('debug'),
   PORT: z.coerce.number().default(3000),
+  APPLICATION: z.string().default('my-app'),
+  LOG_LEVEL: z.enum(levels).default('debug'),
   ORIGIN: z.url().default('http://localhost:5173'),
   NODE_ENV: z.enum(environtments).default('development'),
   MONGODB_URI: z.string().refine(validateMongoUri, {

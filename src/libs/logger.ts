@@ -7,17 +7,11 @@ import { env } from '@/libs/env';
 
 const pino = base({
   name: env.APPLICATION,
-  level: env.LEVEL,
+  level: env.LOG_LEVEL,
 });
 
 const pinoLogger = pinoHttp({
   logger: pino,
-  transport: {
-    target: 'pino-pretty',
-    options: {
-      colorize: true,
-    },
-  },
 });
 
 morgan.token('remote-ip', (req: Request) => req.ip);
