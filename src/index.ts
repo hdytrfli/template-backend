@@ -21,7 +21,6 @@ import '@/workers/welcome.worker';
 const app = express();
 const parser = json();
 
-app.set('query parser', 'extended');
 app.use(parser);
 app.use(cookie);
 app.use(reqid);
@@ -36,6 +35,7 @@ app.use(
 app.use(logger);
 app.use(timer);
 
+app.set('query parser', 'extended');
 app.use('/api/v1', v1);
 app.use(catchall);
 app.use(catcherr);
