@@ -23,5 +23,3 @@ export class MailService {
     log.info('[mail] sending %s to %s', options.subject, options.to.address);
   }
 }
-
-export const mailService = new MailService();

@@ -3,6 +3,7 @@ import { Router, type Request } from 'express';
 import { Hash } from '@/helpers/hash';
 import { Company } from '@/models/company';
 import { User } from '@/models/user';
+import { pubsub } from '@/services/pubsub.service';
 import { QueueService } from '@/services/queue.service';
 import type { AppResponse } from '@/types/response';
 
@@ -119,6 +120,20 @@ router.get('/test/email', async (_req: Request, res: AppResponse<null>) => {
   return res.json({
     success: true,
     message: 'Queued email for all users with email',
+  });
+});
+
+router.post('/notify', async (req: Request, res: AppResponse<null>) => {
+  const { message } = req.body;
+
+  await pubsub.publish('notifications', {
+    text: message,
+    timestamp: new Date().toISOString(),
+  });
+
+  return res.json({
+    success: true,
+    message: 'Published to notifications',
   });
 });
 

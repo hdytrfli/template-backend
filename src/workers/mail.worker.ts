@@ -1,6 +1,9 @@
 import { log } from '@/libs/logger';
 import { getPercentage as percentage } from '@/libs/utils';
-import { mailService } from '@/services/mail.service';
+import { MailService } from '@/services/mail.service';
+
+const mailService = new MailService();
+
 import { QueueWorker } from '@/workers/base.worker';
 
 new QueueWorker(

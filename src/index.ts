@@ -13,10 +13,12 @@ import { cors } from '@/middlewares/cors';
 import { reqid } from '@/middlewares/reqid';
 import { timer } from '@/middlewares/timer';
 import v1 from '@/routers/v1/index.route';
+import { pubsub } from '@/services/pubsub.service';
 import { QueueService } from '@/services/queue.service';
 import { socket } from '@/services/socket.service';
 import '@/workers/mail.worker';
 import '@/workers/welcome.worker';
+import '@/workers/pubsub-listener.worker';
 
 const app = express();
 const parser = json();
@@ -61,9 +63,10 @@ process.on('SIGINT', async () => {
 
   const promises = [
     database.disconnect(),
-    QueueService.cleanup(),
     redis.disconnect(),
     socket.disconnect(),
+    pubsub.disconnect(),
+    QueueService.cleanup(),
     //
   ];
 

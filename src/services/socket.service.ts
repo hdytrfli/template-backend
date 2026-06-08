@@ -7,7 +7,7 @@ import { env } from '@/libs/env';
 import { log } from '@/libs/logger';
 import { JWTService } from '@/services/jwt.service';
 
-export class SocketServer {
+export class SocketService {
   readonly client = new SocketIOServer();
   private readonly auth = new JWTService();
 
@@ -55,4 +55,4 @@ export class SocketServer {
   }
 }
 
-export const socket = new SocketServer();
+export const socket = new SocketService();
