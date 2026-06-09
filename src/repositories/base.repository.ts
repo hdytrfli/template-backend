@@ -44,7 +44,7 @@ export class BaseRepository<T> {
   }
 
   async update(filter: QueryFilter<T>, data: UpdateQuery<T>) {
-    const doc = await this.model.findOneAndUpdate(filter, data, { new: true });
+    const doc = await this.model.findOneAndUpdate(filter, data, { returnDocument: 'after' });
     if (doc) log.info('[repository] %s updated with id %s', this.name, doc._id);
     return doc;
   }
