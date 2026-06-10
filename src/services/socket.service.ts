@@ -17,12 +17,12 @@ export class SocketServer {
       maxHttpBufferSize: 1e6,
     });
 
-    this.client.use((socket, next) => {
+    this.client.use(async (socket, next) => {
       const token = socket.handshake.auth['token'] ?? socket.handshake.query['token'];
       if (!token) return next(new UnauthorizedError());
 
       try {
-        const payload = this.auth.verifyAccessToken(token);
+        const payload = await this.auth.verifyAccessToken(token);
         socket.data.id = payload.sub;
         socket.data.level = payload.level;
         next();

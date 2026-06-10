@@ -1,4 +1,7 @@
-import jwt, { type JwtPayload, type SignOptions } from 'jsonwebtoken';
+import { createPrivateKey, createPublicKey } from 'node:crypto';
+import { readFileSync } from 'node:fs';
+
+import { SignJWT, jwtVerify, type JWTPayload } from 'jose';
 
 import { UnauthorizedError } from '@/helpers/error';
 import { env } from '@/libs/env';
@@ -8,51 +11,71 @@ export type TokenPayload = {
   level: string;
 };
 
-type VerifiedToken = TokenPayload & JwtPayload;
+type VerifiedToken = TokenPayload & JWTPayload;
 
 export class JWTService {
-  private secret = env.JWT_SECRET;
-  private refreshSecret = env.JWT_REFRESH_SECRET;
-  private accessExpires = env.JWT_ACCESS_EXPIRES_IN as SignOptions['expiresIn'];
-  private refreshExpires = env.JWT_REFRESH_EXPIRES_IN as SignOptions['expiresIn'];
+  private privateKey;
+  private publicKey;
+  private accessExpires: string;
+  private refreshExpires: string;
 
-  private signAccessToken(payload: TokenPayload): string {
-    return jwt.sign(payload as object, this.secret, {
-      expiresIn: this.accessExpires,
-    });
+  constructor() {
+    const privateKeyPath = env.JWT_PRIVATE_KEY_PATH;
+    const publicKeyPath = env.JWT_PUBLIC_KEY_PATH;
+
+    const privateKeyFile = readFileSync(privateKeyPath);
+    const publicKeyFile = readFileSync(publicKeyPath);
+
+    this.privateKey = createPrivateKey(privateKeyFile);
+    this.publicKey = createPublicKey(publicKeyFile);
+
+    this.accessExpires = env.JWT_ACCESS_EXPIRES_IN;
+    this.refreshExpires = env.JWT_REFRESH_EXPIRES_IN;
   }
 
-  private signRefreshToken(payload: TokenPayload): string {
-    return jwt.sign(payload as object, this.refreshSecret, {
-      expiresIn: this.refreshExpires,
-    });
+  private async signAccessToken(payload: TokenPayload): Promise<string> {
+    return new SignJWT({ ...payload })
+      .setProtectedHeader({ alg: 'RS256' })
+      .setIssuedAt()
+      .setExpirationTime(this.accessExpires)
+      .sign(this.privateKey);
   }
 
-  verifyAccessToken(token: string): TokenPayload {
+  private async signRefreshToken(payload: TokenPayload): Promise<string> {
+    return new SignJWT({ ...payload })
+      .setProtectedHeader({ alg: 'RS256' })
+      .setIssuedAt()
+      .setExpirationTime(this.refreshExpires)
+      .sign(this.privateKey);
+  }
+
+  async verifyAccessToken(token: string): Promise<TokenPayload> {
     try {
-      return jwt.verify(token, this.secret) as TokenPayload;
+      const { payload } = await jwtVerify(token, this.publicKey);
+      return payload as unknown as TokenPayload;
+    } catch {
+      throw new UnauthorizedError('Invalid or expired access token');
+    }
+  }
+
+  async verifyRefreshToken(token: string): Promise<VerifiedToken> {
+    try {
+      const { payload } = await jwtVerify(token, this.publicKey);
+      return payload as VerifiedToken;
     } catch {
       throw new UnauthorizedError('Invalid or expired refresh token');
     }
   }
 
-  verifyRefreshToken(token: string): VerifiedToken {
-    try {
-      return jwt.verify(token, this.refreshSecret) as VerifiedToken;
-    } catch {
-      throw new UnauthorizedError('Invalid or expired refresh token');
-    }
-  }
-
-  generateTokens(userId: string, level: string) {
+  async generateTokens(userId: string, level: string) {
     const payload = { sub: userId, level };
     return {
-      accessToken: this.signAccessToken(payload),
-      refreshToken: this.signRefreshToken(payload),
+      accessToken: await this.signAccessToken(payload),
+      refreshToken: await this.signRefreshToken(payload),
     };
   }
 
-  verifyRefresh(token: string) {
+  async verifyRefresh(token: string) {
     return this.verifyRefreshToken(token);
   }
 }
