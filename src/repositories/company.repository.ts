@@ -1,8 +1,9 @@
 import { Company } from '@/models/company';
-import { BaseRepository } from '@/repositories/base.repository';
 import type { CompanyDTO } from '@/types/model';
 
-export class CompanyRepository extends BaseRepository<CompanyDTO> {
+import { SoftDeletableRepository } from './soft-deletable.repository';
+
+export class CompanyRepository extends SoftDeletableRepository<CompanyDTO> {
   constructor() {
     super(Company, 'company', ['createdBy']);
   }
