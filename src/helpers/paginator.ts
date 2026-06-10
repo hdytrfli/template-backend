@@ -20,7 +20,12 @@ export class Paginator {
 
     let query = model.find(filter).skip(skip).limit(limit);
     if (populate) query = query.populate(populate);
-    const [data, total] = await Promise.all([query, model.countDocuments(filter)]);
+
+    const [data, total] = await Promise.all([
+      query.lean().exec(),
+      model.countDocuments(filter),
+      //
+    ]);
 
     return {
       data,

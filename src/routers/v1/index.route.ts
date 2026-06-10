@@ -14,8 +14,7 @@ router.use('/auth', authRouter);
 router.use('/debug', debugRouter);
 router.use('/development', development, developmentRouter);
 
-router.use(authenticate);
-router.use('/users', userRouter);
-router.use('/companies', companyRouter);
+router.use('/users', authenticate, userRouter);
+router.use('/companies', authenticate, companyRouter);
 
 export default router;

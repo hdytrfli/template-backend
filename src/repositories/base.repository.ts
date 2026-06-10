@@ -15,7 +15,7 @@ export class BaseRepository<T> {
   async index(filter: QueryFilter<T> = {}) {
     let query = this.model.find(filter);
     if (this.populate) query = query.populate(this.populate);
-    return query;
+    return query.lean();
   }
 
   async paginate(
@@ -34,13 +34,13 @@ export class BaseRepository<T> {
   async findById(id: string) {
     let query = this.model.findById(id);
     if (this.populate) query = query.populate(this.populate);
-    return query;
+    return query.lean();
   }
 
   async findOne(filter: QueryFilter<T>) {
     let query = this.model.findOne(filter);
     if (this.populate) query = query.populate(this.populate);
-    return query;
+    return query.lean();
   }
 
   async update(filter: QueryFilter<T>, data: UpdateQuery<T>) {
