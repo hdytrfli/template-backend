@@ -1,14 +1,21 @@
 import type { Request } from 'express';
+import { Types } from 'mongoose';
 import * as z from 'zod';
 
 import { NotFoundError } from '@/helpers/error';
 import { QueryHelper } from '@/helpers/query';
 import type { BaseRepository } from '@/repositories/base.repository';
+import { SoftDeletableRepository } from '@/repositories/soft-deletable.repository';
 import type { AppResponse, PaginatedResponse } from '@/types/response';
 import type { FilterKeys } from '@/types/util';
 
 const paramsSchema = z.object({
-  id: z.string().length(24),
+  id: z
+    .string()
+    .length(24)
+    .refine((value) => {
+      return Types.ObjectId.isValid(value);
+    }),
 });
 
 const querySchema = z.object({
@@ -79,6 +86,17 @@ export class BaseController<T, C extends Partial<T>, U extends Partial<T>> {
 
   delete = async (req: Request, res: AppResponse<null>) => {
     const { id } = paramsSchema.parse(req.params);
+
+    if (this.repository instanceof SoftDeletableRepository) {
+      const user = new Types.ObjectId(req.user.sub);
+      const doc = await this.repository.softDelete({ _id: id }, user);
+      if (!doc) throw new NotFoundError('Resource');
+
+      return res.json({
+        success: true,
+        message: 'Resource deleted',
+      });
+    }
 
     const doc = await this.repository.delete({ _id: id });
     if (!doc) throw new NotFoundError('Resource');
