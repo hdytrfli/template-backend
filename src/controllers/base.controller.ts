@@ -1,4 +1,5 @@
 import type { Request } from 'express';
+import { Types } from 'mongoose';
 import * as z from 'zod';
 
 import { NotFoundError } from '@/helpers/error';
@@ -8,7 +9,12 @@ import type { AppResponse, PaginatedResponse } from '@/types/response';
 import type { FilterKeys } from '@/types/util';
 
 const paramsSchema = z.object({
-  id: z.string().length(24),
+  id: z
+    .string()
+    .length(24)
+    .refine((value) => {
+      return Types.ObjectId.isValid(value);
+    }),
 });
 
 const querySchema = z.object({

@@ -1,5 +1,6 @@
 import { Schema, model } from 'mongoose';
 
+import { softDeletePlugin } from '@/models/plugins/soft-delete';
 import type { PrivateUserDTO } from '@/types/model';
 
 const schema = new Schema<PrivateUserDTO>(
@@ -28,6 +29,7 @@ const schema = new Schema<PrivateUserDTO>(
   },
 );
 
-schema.index({ username: 1 }, { unique: true });
+schema.plugin(softDeletePlugin);
+schema.index({ username: 1, createdAt: -1 }, { unique: true });
 
 export const User = model<PrivateUserDTO>('User', schema);

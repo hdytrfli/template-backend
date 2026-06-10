@@ -1,5 +1,6 @@
 import { Schema, model } from 'mongoose';
 
+import { softDeletePlugin } from '@/models/plugins/soft-delete';
 import type { CompanyDTO } from '@/types/model';
 
 const schema = new Schema<CompanyDTO>(
@@ -12,12 +13,6 @@ const schema = new Schema<CompanyDTO>(
       type: Schema.Types.ObjectId,
       ref: 'User',
     },
-    deleted: { type: Boolean, default: false },
-    deletedAt: { type: Date },
-    deletedBy: {
-      type: Schema.Types.ObjectId,
-      ref: 'User',
-    },
   },
   {
     timestamps: true,
@@ -25,6 +20,7 @@ const schema = new Schema<CompanyDTO>(
   },
 );
 
-schema.index({ name: 1 }, { unique: true });
+schema.plugin(softDeletePlugin);
+schema.index({ name: 1, createdAt: -1 }, { unique: true });
 
 export const Company = model<CompanyDTO>('Company', schema);

@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 
 import { Database } from '@/database/contract';
+import { env } from '@/libs/env';
 import { log } from '@/libs/logger';
 
 export class MongoDatabase extends Database {
@@ -25,9 +26,11 @@ export class MongoDatabase extends Database {
 
   async connect(): Promise<void> {
     await mongoose.connect(this.uri, {
+      autoIndex: env.NODE_ENV === 'production',
       serverSelectionTimeoutMS: 5000,
       sanitizeFilter: true,
     });
+
     mongoose.set('strictQuery', true);
   }
 

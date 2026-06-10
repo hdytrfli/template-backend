@@ -13,7 +13,12 @@ export type MailRecipient = {
   name: string;
 };
 
-export type UserDTO = {
+export type SoftDeleteable = {
+  deletedAt?: Date;
+  deletedBy?: Types.ObjectId;
+};
+
+export type UserDTO = SoftDeleteable & {
   username: string;
   name: string;
   level: string;
@@ -27,13 +32,10 @@ export type PrivateUserDTO = UserDTO & {
   password: string;
 };
 
-export type CompanyDTO = {
+export type CompanyDTO = SoftDeleteable & {
   name: string;
   country: string;
   email: string;
   companyType: string;
   createdBy?: Types.ObjectId;
-  deleted: boolean;
-  deletedAt?: Date;
-  deletedBy?: Types.ObjectId;
 };
