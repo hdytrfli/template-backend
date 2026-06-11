@@ -8,7 +8,7 @@ import { env } from '@/libs/env';
 export const cors = base({
   origin: env.ORIGIN,
   credentials: true,
-  methods: ['GET', 'POST', 'HEAD', 'OPTIONS'],
+  methods: ['GET', 'POST', 'HEAD', 'OPTIONS', 'PATCH', 'DELETE'],
   allowedHeaders: [
     'Accept',
     'Authorization',

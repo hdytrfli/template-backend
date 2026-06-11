@@ -30,6 +30,8 @@ const schema = new Schema<PrivateUserDTO>(
 );
 
 schema.plugin(softDeletePlugin);
-schema.index({ username: 1, createdAt: -1 }, { unique: true });
+
+schema.index({ username: 1 }, { unique: true });
+schema.index({ username: 1, createdAt: -1 });
 
 export const User = model<PrivateUserDTO>('User', schema);

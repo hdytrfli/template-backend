@@ -21,6 +21,8 @@ const schema = new Schema<CompanyDTO>(
 );
 
 schema.plugin(softDeletePlugin);
-schema.index({ name: 1, createdAt: -1 }, { unique: true });
+
+schema.index({ name: 1 }, { unique: true });
+schema.index({ name: 1, createdAt: -1 });
 
 export const Company = model<CompanyDTO>('Company', schema);
