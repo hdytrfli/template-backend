@@ -3,9 +3,9 @@ import type { Types } from 'mongoose';
 
 import { log } from '@/libs/logger';
 import { BaseRepository } from '@/repositories/base.repository';
-import type { SoftDeleteable } from '@/types/model';
+import type { SoftDeletable } from '@/types/model';
 
-export class SoftDeletableRepository<T extends SoftDeleteable> extends BaseRepository<T> {
+export class SoftDeletableRepository<T extends SoftDeletable> extends BaseRepository<T> {
   async softDelete(filter: QueryFilter<T>, deletedBy: Types.ObjectId) {
     const doc = await this.model.findOneAndUpdate(
       filter,
