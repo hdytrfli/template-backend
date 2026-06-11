@@ -1,3 +1,5 @@
+import { resolve } from 'node:path';
+
 import * as dotenv from 'dotenv';
 import * as z from 'zod';
 
@@ -12,6 +14,8 @@ const validateMongoUri = (value: string) => {
   return value.startsWith('mongodb://') || value.startsWith('mongodb+srv://');
 };
 
+const currentDir = process.cwd();
+
 const envSchema = z.object({
   BIND: z.string().default('0.0.0.0'),
   PORT: z.coerce.number().default(3000),
@@ -22,8 +26,14 @@ const envSchema = z.object({
   MONGODB_URI: z.string().refine(validateMongoUri, {
     message: 'MONGODB_URI must start with mongodb:// or mongodb+srv://',
   }),
-  JWT_SECRET: z.string().min(32),
-  JWT_REFRESH_SECRET: z.string().min(32).default('local-dev-refresh-secret-min-32-chars'),
+  JWT_PRIVATE_KEY_PATH: z
+    .string()
+    .default('keys/private.pem')
+    .transform((value) => resolve(currentDir, value)),
+  JWT_PUBLIC_KEY_PATH: z
+    .string()
+    .default('keys/public.pem')
+    .transform((value) => resolve(currentDir, value)),
   JWT_ACCESS_EXPIRES_IN: z.string().default('15m'),
   JWT_REFRESH_EXPIRES_IN: z.string().default('7d'),
   JWT_ACCESS_TOKEN_NAME: z.string().default('Bearer'),
