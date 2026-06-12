@@ -31,6 +31,7 @@ const envSchema = z.object({
   COOKIE_DOMAIN: z.string().optional(),
   COOKIE_REFRESH_KEY: z.string(),
   REDIS_URL: z.string().default('redis://127.0.0.1:6379'),
+  RABBITMQ_URL: z.string().default('amqp://guest:guest@127.0.0.1:5672'),
 });
 
 const { success, error, data } = envSchema.safeParse(process.env);

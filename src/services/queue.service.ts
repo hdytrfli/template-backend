@@ -15,7 +15,7 @@ export class QueueService {
     let queue = this.instances.get(name);
 
     if (!queue) {
-      queue = new Queue(name, { connection: redis.client as never });
+      queue = new Queue(name, { connection: redis.client! as never });
       this.instances.set(name, queue);
     }
 

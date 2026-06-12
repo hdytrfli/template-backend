@@ -12,6 +12,7 @@ export class QueueWorker<N extends QueueKey> {
     handler: (job: Job<QueueJobs[N]>) => Promise<void>,
     options?: Omit<WorkerOptions, 'connection'>,
   ) {
+    if (!redis.client) throw new Error('Redis client is not connected');
     this.worker = new Worker<QueueJobs[N]>(name, handler, {
       connection: redis.client as never,
       ...options,
