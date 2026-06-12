@@ -15,9 +15,12 @@
     "lint": "oxlint",
     "format": "oxfmt --check",
     "fix": "oxfmt && oxlint --fix",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "check": "tsgo --noEmit && oxlint && oxfmt --check"
   },
   "dependencies": {
+    "amqplib": "^2.0.1",
     "bullmq": "^5.78.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
@@ -41,13 +44,16 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/morgan": "^1.9.10",
     "@types/node": "^25.9.1",
+    "@types/qs": "^6.15.1",
     "@typescript/native-preview": "7.0.0-dev.20260527.2",
     "esbuild-plugin-tsconfig-paths": "^1.0.2",
     "lefthook": "^2.1.9",
     "oxfmt": "^0.52.0",
     "oxlint": "^1.67.0",
+    "qs": "^6.15.2",
     "tsup": "^8.5.1",
-    "tsx": "^4.22.4"
+    "tsx": "^4.22.4",
+    "vitest": "^4.1.8"
   },
   "devEngines": {
     "packageManager": {

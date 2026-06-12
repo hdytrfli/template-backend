@@ -1,5 +1,5 @@
 {
-  "exclude": ["dist", "tsup.config.ts"],
+  "exclude": ["dist", "tsup.config.ts", "vitest.config.ts"],
   "compilerOptions": {
     /* file layout */
     "rootDir": "./src",
