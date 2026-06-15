@@ -2,7 +2,7 @@ import type { Request } from 'express';
 import { Types } from 'mongoose';
 import * as z from 'zod';
 
-import { NotFoundError } from '@/helpers/error';
+import { NotFoundError, ValidationError } from '@/helpers/error';
 import { QueryHelper } from '@/helpers/query';
 import type { BaseRepository } from '@/repositories/base.repository';
 import { SoftDeletableRepository } from '@/repositories/soft-deletable.repository';
@@ -81,7 +81,7 @@ export class BaseController<T, C extends Partial<T>, U extends Partial<T>> {
     const { id } = paramsSchema.parse(req.params);
 
     const doc = await this.repository.findById(id);
-    if (!doc) throw new NotFoundError('Resource');
+    if (!doc) throw new NotFoundError();
 
     return res.json({
       success: true,
@@ -93,8 +93,10 @@ export class BaseController<T, C extends Partial<T>, U extends Partial<T>> {
     const { id } = paramsSchema.parse(req.params);
 
     const data = this.updateSchema.parse(req.body);
+    if (Object.keys(data).length === 0) throw new ValidationError('No data to update');
+
     const doc = await this.repository.update({ _id: id }, data);
-    if (!doc) throw new NotFoundError('Resource');
+    if (!doc) throw new NotFoundError();
 
     return res.json({
       success: true,
@@ -108,7 +110,7 @@ export class BaseController<T, C extends Partial<T>, U extends Partial<T>> {
     if (this.repository instanceof SoftDeletableRepository) {
       const user = new Types.ObjectId(req.user.sub);
       const doc = await this.repository.softDelete({ _id: id }, user);
-      if (!doc) throw new NotFoundError('Resource');
+      if (!doc) throw new NotFoundError();
 
       return res.json({
         success: true,
@@ -117,7 +119,7 @@ export class BaseController<T, C extends Partial<T>, U extends Partial<T>> {
     }
 
     const doc = await this.repository.delete({ _id: id });
-    if (!doc) throw new NotFoundError('Resource');
+    if (!doc) throw new NotFoundError();
 
     return res.json({
       success: true,

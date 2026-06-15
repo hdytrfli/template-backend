@@ -11,17 +11,14 @@ export class AppError extends Error {
 }
 
 export class NotFoundError extends AppError {
-  constructor(resource: string) {
+  constructor(resource: string = 'Resource') {
     super(resource + ' not found', 404);
   }
 }
 
 export class ValidationError extends AppError {
-  public readonly details: string;
-
-  constructor(details: string) {
-    super('Validation failed', 400);
-    this.details = details;
+  constructor(message: string = 'Data is not valid, re-check the payload') {
+    super(message, 400);
   }
 }
 

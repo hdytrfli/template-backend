@@ -13,12 +13,12 @@ const createUserSchema = z.object({
   phone: z.string().optional(),
 });
 
-const updateUserSchema = z.object({
-  name: z.string().min(1).max(100).optional(),
-  level: z.string().min(1).optional(),
-  email: z.email().optional(),
-  phone: z.string().optional(),
-});
+const updateUserSchema = createUserSchema
+  .omit({
+    username: true,
+    password: true,
+  })
+  .partial();
 
 /**
  * Controller to handle user related data.
