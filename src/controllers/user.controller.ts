@@ -29,6 +29,12 @@ export class UserController extends BaseController<
   z.infer<typeof updateUserSchema>
 > {
   constructor() {
-    super(new UserRepository(), createUserSchema, updateUserSchema, ['name', 'email']);
+    super(
+      new UserRepository(),
+      createUserSchema,
+      updateUserSchema,
+      ['name', 'email'],
+      ['name', 'username', 'level', 'createdAt'],
+    );
   }
 }

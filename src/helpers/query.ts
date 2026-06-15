@@ -1,7 +1,7 @@
 import type { QueryFilter } from 'mongoose';
 
 import { OPERATORS } from '@/libs/constant';
-import type { FilterKeys } from '@/types/util';
+import type { FilterKeys, SortParams } from '@/types/util';
 
 /**
  * Build a Mongoose filter from bracket-notation query params.
@@ -15,7 +15,7 @@ export class QueryHelper {
     }, {});
   }
 
-  static build<T>(filter: Record<string, unknown>): QueryFilter<T> {
+  static parseFilter<T>(filter: Record<string, unknown>): QueryFilter<T> {
     const result: Record<string, unknown> = {};
 
     for (const [key, value] of Object.entries(filter)) {
@@ -32,7 +32,24 @@ export class QueryHelper {
     return result as QueryFilter<T>;
   }
 
-  static clean<T>(query: QueryFilter<T>, allowed: FilterKeys<T> = []): QueryFilter<T> {
+  static parseSort(sort?: string): SortParams | undefined {
+    if (!sort) return undefined;
+
+    return sort.split(',').reduce<SortParams>((acc, field) => {
+      const trimmed = field.trim();
+      if (!trimmed) return acc;
+      acc[trimmed.replace(/^-/, '')] = trimmed.startsWith('-') ? -1 : 1;
+      return acc;
+    }, {});
+  }
+
+  static sanitizeSort(sort?: SortParams, allowed: string[] = []): SortParams | undefined {
+    if (!sort || allowed.length === 0) return sort;
+    const accept = new Set(allowed);
+    return Object.fromEntries(Object.entries(sort).filter(([key]) => accept.has(key)));
+  }
+
+  static sanitizeFilter<T>(query: QueryFilter<T>, allowed: FilterKeys<T> = []): QueryFilter<T> {
     if (allowed.length === 0) return query;
 
     const accept = new Set<keyof T>(allowed);

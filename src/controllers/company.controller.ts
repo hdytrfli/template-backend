@@ -27,10 +27,12 @@ export class CompanyController extends BaseController<
   z.infer<typeof updateCompanySchema>
 > {
   constructor() {
-    super(new CompanyRepository(), createCompanySchema, updateCompanySchema, [
-      'name',
-      'country',
-      'companyType',
-    ]);
+    super(
+      new CompanyRepository(),
+      createCompanySchema,
+      updateCompanySchema,
+      ['name', 'country', 'companyType'],
+      ['name', 'country', 'companyType', 'createdAt'],
+    );
   }
 }

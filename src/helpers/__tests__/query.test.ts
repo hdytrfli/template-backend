@@ -3,28 +3,13 @@ import { describe, expect, it } from 'vitest';
 
 import { QueryHelper } from '@/helpers/query';
 
-type FilterQuery = { filter: Record<string, unknown> };
-const parse = (query: string) => qs.parse(query) as unknown as FilterQuery;
+const parse = (url: string) => qs.parse(new URL(url).search.slice(1)) as any;
 
 describe('QueryHelper', () => {
-  describe('build', () => {
+  describe('parseFilter', () => {
     it('converts a plain string value to a regex filter', () => {
-      const query = 'filter[name]=john';
-      const parsed = parse(query);
-      const result = QueryHelper.build(parsed.filter);
-
-      expect(result).toEqual({
-        name: {
-          $regex: 'john',
-          $options: 'i',
-        },
-      });
-    });
-
-    it('converts the regex operator to $regex', () => {
-      const query = 'filter[name][regex]=john';
-      const parsed = parse(query);
-      const result = QueryHelper.build(parsed.filter);
+      const { filter } = parse('http://example.com?filter[name]=john');
+      const result = QueryHelper.parseFilter(filter);
 
       expect(result).toEqual({
         name: {
@@ -35,9 +20,8 @@ describe('QueryHelper', () => {
     });
 
     it('converts the ne operator to $ne', () => {
-      const query = 'filter[status][ne]=inactive';
-      const parsed = parse(query);
-      const result = QueryHelper.build(parsed.filter);
+      const { filter } = parse('http://example.com?filter[status][ne]=inactive');
+      const result = QueryHelper.parseFilter(filter);
 
       expect(result).toEqual({
         status: {
@@ -47,9 +31,8 @@ describe('QueryHelper', () => {
     });
 
     it('converts the gte operator to $gte as a number', () => {
-      const query = 'filter[age][gte]=18';
-      const parsed = parse(query);
-      const result = QueryHelper.build(parsed.filter);
+      const { filter } = parse('http://example.com?filter[age][gte]=18');
+      const result = QueryHelper.parseFilter(filter);
 
       expect(result).toEqual({
         age: {
@@ -59,9 +42,8 @@ describe('QueryHelper', () => {
     });
 
     it('converts the gt operator to $gt as a number', () => {
-      const query = 'filter[age][gt]=18';
-      const parsed = parse(query);
-      const result = QueryHelper.build(parsed.filter);
+      const { filter } = parse('http://example.com?filter[age][gt]=18');
+      const result = QueryHelper.parseFilter(filter);
 
       expect(result).toEqual({
         age: {
@@ -71,9 +53,8 @@ describe('QueryHelper', () => {
     });
 
     it('converts the lte operator to $lte as a number', () => {
-      const query = 'filter[age][lte]=65';
-      const parsed = parse(query);
-      const result = QueryHelper.build(parsed.filter);
+      const { filter } = parse('http://example.com?filter[age][lte]=65');
+      const result = QueryHelper.parseFilter(filter);
 
       expect(result).toEqual({
         age: {
@@ -83,9 +64,8 @@ describe('QueryHelper', () => {
     });
 
     it('converts the lt operator to $lt as a number', () => {
-      const query = 'filter[age][lt]=18';
-      const parsed = parse(query);
-      const result = QueryHelper.build(parsed.filter);
+      const { filter } = parse('http://example.com?filter[age][lt]=18');
+      const result = QueryHelper.parseFilter(filter);
 
       expect(result).toEqual({
         age: {
@@ -95,9 +75,8 @@ describe('QueryHelper', () => {
     });
 
     it('converts the in operator to $in as an array', () => {
-      const query = 'filter[role][in]=admin,user,mod';
-      const parsed = parse(query);
-      const result = QueryHelper.build(parsed.filter);
+      const { filter } = parse('http://example.com?filter[role][in]=admin,user,mod');
+      const result = QueryHelper.parseFilter(filter);
 
       expect(result).toEqual({
         role: {
@@ -107,23 +86,28 @@ describe('QueryHelper', () => {
     });
 
     it('processes multiple fields with different operators', () => {
-      const query = 'filter[name][regex]=john&filter[age][gte]=18&filter[age][lte]=65';
-      const parsed = parse(query);
-      const result = QueryHelper.build(parsed.filter);
+      const { filter } = parse(
+        'http://example.com?filter[name][regex]=john&filter[age][gte]=18&filter[age][lte]=65',
+      );
+      const result = QueryHelper.parseFilter(filter);
 
       expect(result).toEqual({
         name: {
           $regex: 'john',
           $options: 'i',
         },
-        age: { $gte: 18, $lte: 65 },
+        age: {
+          $gte: 18,
+          $lte: 65,
+        },
       });
     });
 
     it('skips values that are not strings or plain objects', () => {
-      const query = 'filter[name][regex]=john&filter[tags][]=a&filter[tags][]=b';
-      const parsed = parse(query);
-      const result = QueryHelper.build(parsed.filter);
+      const { filter } = parse(
+        'http://example.com?filter[name][regex]=john&filter[tags][]=a&filter[tags][]=b',
+      );
+      const result = QueryHelper.parseFilter(filter);
 
       expect(result).toEqual({
         name: {
@@ -134,31 +118,32 @@ describe('QueryHelper', () => {
     });
 
     it('combines a plain string with an operator-based filter', () => {
-      const query = 'filter[status]=active&filter[age][gte]=21';
-      const parsed = parse(query);
-      const result = QueryHelper.build(parsed.filter);
+      const { filter } = parse('http://example.com?filter[status]=active&filter[age][gte]=21');
+      const result = QueryHelper.parseFilter(filter);
 
       expect(result).toEqual({
         status: {
           $regex: 'active',
           $options: 'i',
         },
-        age: { $gte: 21 },
+        age: {
+          $gte: 21,
+        },
       });
     });
 
     it('ignores operators that are not in the known map', () => {
-      const query = 'filter[name][unknown]=value';
-      const parsed = parse(query);
-      const result = QueryHelper.build(parsed.filter);
+      const { filter } = parse('http://example.com?filter[name][unknown]=value');
+      const result = QueryHelper.parseFilter(filter);
 
-      expect(result).toEqual({});
+      expect(result).toEqual({
+        //
+      });
     });
 
     it('handles an empty filter', () => {
-      const query = 'filter=';
-      const parsed = parse(query);
-      const result = QueryHelper.build(parsed.filter);
+      const { filter } = parse('http://example.com');
+      const result = QueryHelper.parseFilter(filter ?? {});
 
       expect(result).toEqual({
         //
@@ -166,39 +151,127 @@ describe('QueryHelper', () => {
     });
 
     it('full pipeline: URL query string to cleaned MongoDB filter', () => {
-      const query = 'filter[name][regex]=john&filter[status]=active&filter[age][gte]=21';
-      const parsed = parse(query);
+      const { filter } = parse(
+        'http://example.com?filter[name][regex]=john&filter[status]=active&filter[age][gte]=21',
+      );
 
-      const built = QueryHelper.build(parsed.filter);
-      const cleaned = QueryHelper.clean(built, ['name', 'age']);
+      const built = QueryHelper.parseFilter(filter);
+      const cleaned = QueryHelper.sanitizeFilter(built, ['name', 'age']);
 
       expect(cleaned).toEqual({
         name: {
           $regex: 'john',
           $options: 'i',
         },
-        age: { $gte: 21 },
+        age: {
+          $gte: 21,
+        },
       });
     });
   });
 
-  describe('clean', () => {
-    it('returns the query as-is when no allowed fields are provided', () => {
-      const query = 'filter[name]=john';
-      const parsed = parse(query);
+  describe('parseSort', () => {
+    it('returns undefined when no sort param', () => {
+      const { sort } = parse('http://example.com');
+      const result = QueryHelper.parseSort(sort);
 
-      const built = QueryHelper.build(parsed.filter);
-      const result = QueryHelper.clean(built);
+      expect(result).toBeUndefined();
+    });
+
+    it('parses a single ascending field', () => {
+      const { sort } = parse('http://example.com?sort=name');
+      const result = QueryHelper.parseSort(sort);
+
+      expect(result).toEqual({
+        name: 1,
+      });
+    });
+
+    it('parses a single descending field', () => {
+      const { sort } = parse('http://example.com?sort=-createdAt');
+      const result = QueryHelper.parseSort(sort);
+
+      expect(result).toEqual({
+        createdAt: -1,
+      });
+    });
+
+    it('parses multiple fields with mixed direction', () => {
+      const { sort } = parse('http://example.com?sort=name,-createdAt,level');
+      const result = QueryHelper.parseSort(sort);
+
+      expect(result).toEqual({
+        name: 1,
+        createdAt: -1,
+        level: 1,
+      });
+    });
+
+    it('handles extra whitespace around fields', () => {
+      const { sort } = parse('http://example.com?sort= name , -createdAt ');
+      const result = QueryHelper.parseSort(sort);
+
+      expect(result).toEqual({
+        name: 1,
+        createdAt: -1,
+      });
+    });
+  });
+
+  describe('sanitizeSort', () => {
+    it('returns sort as-is when no allowed fields', () => {
+      const { sort } = parse('http://example.com?sort=name,-createdAt');
+      const result = QueryHelper.sanitizeSort(QueryHelper.parseSort(sort));
+
+      expect(result).toEqual({
+        name: 1,
+        createdAt: -1,
+      });
+    });
+
+    it('strips fields not in the allowed list', () => {
+      const { sort } = parse('http://example.com?sort=name,-createdAt,role');
+      const result = QueryHelper.sanitizeSort(QueryHelper.parseSort(sort), ['name', 'createdAt']);
+
+      expect(result).toEqual({
+        name: 1,
+        createdAt: -1,
+      });
+    });
+
+    it('returns undefined when sort is undefined', () => {
+      const result = QueryHelper.sanitizeSort(undefined, ['name']);
+
+      expect(result).toBeUndefined();
+    });
+
+    it('returns empty object when no fields are allowed', () => {
+      const { sort } = parse('http://example.com?sort=name,-createdAt');
+      const result = QueryHelper.sanitizeSort(QueryHelper.parseSort(sort), ['email']);
+
+      expect(result).toEqual({
+        //
+      });
+    });
+  });
+
+  describe('sanitizeFilter', () => {
+    it('returns the query as-is when no allowed fields are provided', () => {
+      const { filter } = parse('http://example.com?filter[name]=john');
+
+      const built = QueryHelper.parseFilter(filter);
+      const result = QueryHelper.sanitizeFilter(built);
 
       expect(result).toEqual(built);
     });
 
     it('strips fields not in the allowed list', () => {
-      const query = 'filter[name][regex]=john&filter[role][ne]=admin';
-      const parsed = parse(query);
+      const { filter } = parse(
+        'http://example.com?filter[name][regex]=john&filter[role][ne]=admin',
+      );
 
-      const built = QueryHelper.build(parsed.filter);
-      const result = QueryHelper.clean(built, ['name']);
+      const built = QueryHelper.parseFilter(filter);
+      const result = QueryHelper.sanitizeFilter(built, ['name']);
 
       expect(result).toEqual({
         name: {
@@ -209,11 +282,12 @@ describe('QueryHelper', () => {
     });
 
     it('allows only the specified fields', () => {
-      const query = 'filter[name][regex]=john&filter[age][gte]=18&filter[role][regex]=admin';
-      const parsed = parse(query);
+      const { filter } = parse(
+        'http://example.com?filter[name][regex]=john&filter[age][gte]=18&filter[role][regex]=admin',
+      );
 
-      const built = QueryHelper.build(parsed.filter);
-      const result = QueryHelper.clean(built, ['name', 'role']);
+      const built = QueryHelper.parseFilter(filter);
+      const result = QueryHelper.sanitizeFilter(built, ['name', 'role']);
 
       expect(result).toEqual({
         name: {
@@ -228,10 +302,9 @@ describe('QueryHelper', () => {
     });
 
     it('returns an empty object when no fields are allowed', () => {
-      const query = 'filter[name][regex]=john';
-      const parsed = parse(query);
-      const built = QueryHelper.build(parsed.filter);
-      const result = QueryHelper.clean(built, ['email']);
+      const { filter } = parse('http://example.com?filter[name][regex]=john');
+      const built = QueryHelper.parseFilter(filter);
+      const result = QueryHelper.sanitizeFilter(built, ['email']);
 
       expect(result).toEqual({
         //

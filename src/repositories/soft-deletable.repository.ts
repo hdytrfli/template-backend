@@ -25,6 +25,25 @@ export class SoftDeletableRepository<T extends SoftDeletable> extends BaseReposi
     return doc;
   }
 
+  async restore(filter: QueryFilter<T>) {
+    const doc = await this.model.findOneAndUpdate(
+      filter,
+      {
+        $unset: {
+          deletedAt: '',
+          deletedBy: '',
+        },
+      },
+      {
+        returnDocument: 'after',
+        lean: true,
+      },
+    );
+
+    if (doc) log.info('[repository] %s restored with id %s', this.name, doc._id);
+    return doc;
+  }
+
   async hardDelete(filter: QueryFilter<T>) {
     const doc = await this.model.findOneAndDelete(filter);
     if (doc) log.info('[repository] %s hard-deleted with id %s', this.name, doc._id);
