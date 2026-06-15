@@ -22,6 +22,7 @@ const querySchema = z.object({
   page: z.coerce.number().positive().default(1),
   limit: z.coerce.number().positive().max(100).default(20),
   filter: z.record(z.string(), z.unknown()).optional().default({}),
+  sort: z.string().optional(),
 });
 
 /**
@@ -32,15 +33,19 @@ export class BaseController<T, C extends Partial<T>, U extends Partial<T>> {
     protected repository: BaseRepository<T>,
     protected createSchema: z.ZodType<C>,
     protected updateSchema: z.ZodType<U>,
-    protected filterFields: FilterKeys<T> = [],
+    protected filterableFields: FilterKeys<T> = [],
+    protected sortableFields: string[] = [],
   ) {}
 
   index = async (req: Request, res: PaginatedResponse<T>) => {
-    const { page, limit, filter } = querySchema.parse(req.query);
+    const { page, limit, filter: filterQuery, sort: sortQuery } = querySchema.parse(req.query);
 
-    const built = QueryHelper.build(filter);
-    const query = QueryHelper.clean(built, this.filterFields);
-    const { data, pagination } = await this.repository.paginate({ page, limit }, query);
+    const parsedQuery = QueryHelper.parseFilter(filterQuery);
+    const parsedSort = QueryHelper.parseSort(sortQuery);
+
+    const filter = QueryHelper.sanitizeFilter(parsedQuery, this.filterableFields);
+    const sort = QueryHelper.sanitizeSort(parsedSort, this.sortableFields);
+    const { data, pagination } = await this.repository.paginate({ page, limit }, filter, sort);
 
     return res.json({
       success: true,
@@ -52,8 +57,8 @@ export class BaseController<T, C extends Partial<T>, U extends Partial<T>> {
   count = async (req: Request, res: AppResponse<{ count: number }>) => {
     const { filter } = querySchema.parse(req.query);
 
-    const built = QueryHelper.build(filter);
-    const query = QueryHelper.clean(built, this.filterFields);
+    const built = QueryHelper.parseFilter(filter);
+    const query = QueryHelper.sanitizeFilter(built, this.filterableFields);
     const count = await this.repository.count(query);
 
     return res.json({
