@@ -13,12 +13,19 @@ export type MailRecipient = {
   name: string;
 };
 
+export type Timestamp = {
+  createdAt?: Date;
+  updatedAt?: Date;
+};
+
 export type SoftDeletable = {
   deletedAt?: Date;
   deletedBy?: Types.ObjectId;
 };
 
-export type UserDTO = SoftDeletable & {
+type ModelBase = Timestamp & SoftDeletable;
+
+export type UserDTO = ModelBase & {
   username: string;
   name: string;
   level: string;
@@ -32,7 +39,7 @@ export type PrivateUserDTO = UserDTO & {
   password: string;
 };
 
-export type CompanyDTO = SoftDeletable & {
+export type CompanyDTO = ModelBase & {
   name: string;
   country: string;
   email: string;

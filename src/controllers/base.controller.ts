@@ -34,7 +34,7 @@ export class BaseController<T, C extends Partial<T>, U extends Partial<T>> {
     protected createSchema: z.ZodType<C>,
     protected updateSchema: z.ZodType<U>,
     protected filterableFields: FilterKeys<T> = [],
-    protected sortableFields: string[] = [],
+    protected sortableFields: FilterKeys<T> = [],
   ) {}
 
   index = async (req: Request, res: PaginatedResponse<T>) => {
