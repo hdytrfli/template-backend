@@ -51,6 +51,10 @@ export class BaseRepository<T> {
     return doc;
   }
 
+  async count(filter: QueryFilter<T> = {}) {
+    return this.model.countDocuments(filter);
+  }
+
   async delete(filter: QueryFilter<T>) {
     const doc = await this.model.findOneAndDelete(filter);
     if (doc) log.info('[repository] %s deleted with id %s', this.name, doc._id);

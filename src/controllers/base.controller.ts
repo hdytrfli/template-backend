@@ -49,6 +49,19 @@ export class BaseController<T, C extends Partial<T>, U extends Partial<T>> {
     });
   };
 
+  count = async (req: Request, res: AppResponse<{ count: number }>) => {
+    const { filter } = querySchema.parse(req.query);
+
+    const built = QueryHelper.build(filter);
+    const query = QueryHelper.clean(built, this.filterFields);
+    const count = await this.repository.count(query);
+
+    return res.json({
+      success: true,
+      data: { count },
+    });
+  };
+
   create = async (req: Request, res: AppResponse<T>) => {
     const data = this.createSchema.parse(req.body);
     const doc = await this.repository.create(data);
