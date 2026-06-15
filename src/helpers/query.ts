@@ -45,18 +45,20 @@ export class QueryHelper {
 
   static sanitizeSort(sort?: SortParams, allowed: string[] = []): SortParams | undefined {
     if (!sort || allowed.length === 0) return sort;
-    const accept = new Set(allowed);
-    return Object.fromEntries(Object.entries(sort).filter(([key]) => accept.has(key)));
+    return Object.fromEntries(
+      Object.entries(sort).filter(([key]) =>
+        allowed.some((a) => key === a || key.startsWith(a + '.')),
+      ),
+    );
   }
 
   static sanitizeFilter<T>(query: QueryFilter<T>, allowed: FilterKeys<T> = []): QueryFilter<T> {
     if (allowed.length === 0) return query;
 
-    const accept = new Set<string>(allowed);
     return Object.fromEntries(
       Object.entries(query).filter(([key]) => {
-        const operator = key.startsWith('$');
-        return !operator && accept.has(key);
+        if (key.startsWith('$')) return false;
+        return allowed.some((a) => key === a || key.startsWith(a + '.'));
       }),
     ) as QueryFilter<T>;
   }

@@ -29,8 +29,8 @@ export class CompanyController extends BaseController<
       new CompanyRepository(),
       createCompanySchema,
       updateCompanySchema,
-      ['name', 'country.code', 'country.label', 'type'],
-      ['name', 'country.label', 'type', 'createdAt'],
+      ['name', 'country', 'type', 'email'],
+      ['name', 'type', 'createdAt'],
     );
   }
 }

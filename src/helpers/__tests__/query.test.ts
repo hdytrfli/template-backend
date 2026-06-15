@@ -366,5 +366,79 @@ describe('QueryHelper', () => {
         },
       });
     });
+
+    it('allows parent prefix to match nested fields', () => {
+      const { filter } = parse(
+        'http://example.com?filter[address.city]=New York&filter[address.zip][gte]=10000&filter[status]=active',
+      );
+
+      const built = QueryHelper.parseFilter(filter);
+      const result = QueryHelper.sanitizeFilter(built, ['address', 'status']);
+
+      expect(result).toEqual({
+        'address.city': {
+          $regex: 'New York',
+          $options: 'i',
+        },
+        'address.zip': {
+          $gte: 10000,
+        },
+        status: {
+          $regex: 'active',
+          $options: 'i',
+        },
+      });
+    });
+
+    it('does not accidentally match unrelated keys via prefix', () => {
+      const { filter } = parse('http://example.com?filter[add]=skip&filter[address.city]=New York');
+
+      const built = QueryHelper.parseFilter(filter);
+      const result = QueryHelper.sanitizeFilter(built, ['address']);
+
+      expect(result).toEqual({
+        'address.city': {
+          $regex: 'New York',
+          $options: 'i',
+        },
+      });
+    });
+  });
+
+  describe('sort with nested fields', () => {
+    it('parses a nested sort field', () => {
+      const result = QueryHelper.parseSort('country.label');
+
+      expect(result).toEqual({
+        'country.label': 1,
+      });
+    });
+
+    it('parses a nested descending sort field', () => {
+      const result = QueryHelper.parseSort('-country.label');
+
+      expect(result).toEqual({
+        'country.label': -1,
+      });
+    });
+
+    it('allows nested sort via prefix match', () => {
+      const sort = QueryHelper.parseSort('country.label,-name');
+      const result = QueryHelper.sanitizeSort(sort, ['country', 'name']);
+
+      expect(result).toEqual({
+        'country.label': 1,
+        name: -1,
+      });
+    });
+
+    it('strips nested sort field when parent not allowed', () => {
+      const sort = QueryHelper.parseSort('country.label,name');
+      const result = QueryHelper.sanitizeSort(sort, ['name']);
+
+      expect(result).toEqual({
+        name: 1,
+      });
+    });
   });
 });
