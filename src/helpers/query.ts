@@ -52,12 +52,11 @@ export class QueryHelper {
   static sanitizeFilter<T>(query: QueryFilter<T>, allowed: FilterKeys<T> = []): QueryFilter<T> {
     if (allowed.length === 0) return query;
 
-    const accept = new Set<keyof T>(allowed);
+    const accept = new Set<string>(allowed);
     return Object.fromEntries(
       Object.entries(query).filter(([key]) => {
         const operator = key.startsWith('$');
-        const allowed = accept.has(key as keyof T);
-        return !operator && allowed;
+        return !operator && accept.has(key);
       }),
     ) as QueryFilter<T>;
   }

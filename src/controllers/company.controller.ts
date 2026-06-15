@@ -6,9 +6,12 @@ import type { CompanyDTO } from '@/types/model';
 
 const createCompanySchema = z.object({
   name: z.string().min(1).max(200),
-  country: z.string().min(1).max(100),
   email: z.email(),
-  companyType: z.string().min(1).max(100),
+  type: z.string().min(1).max(100),
+  country: z.object({
+    code: z.string().min(1).max(10),
+    label: z.string().min(1).max(100),
+  }),
 });
 
 const updateCompanySchema = createCompanySchema.partial();
@@ -26,8 +29,8 @@ export class CompanyController extends BaseController<
       new CompanyRepository(),
       createCompanySchema,
       updateCompanySchema,
-      ['name', 'country', 'companyType'],
-      ['name', 'country', 'companyType', 'createdAt'],
+      ['name', 'country.code', 'country.label', 'type'],
+      ['name', 'country.label', 'type', 'createdAt'],
     );
   }
 }

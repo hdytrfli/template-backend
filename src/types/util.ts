@@ -1,4 +1,10 @@
-export type FilterKeys<T> = Array<Extract<keyof T, string>>;
+type NestedKeys<T> = {
+  [K in keyof T & string]: T[K] extends Record<string, unknown>
+    ? K | `${K}.${NestedKeys<T[K]>}`
+    : K;
+}[keyof T & string];
+
+export type FilterKeys<T> = Array<NestedKeys<T>>;
 
 export type SortParams = Record<string, 1 | -1>;
 

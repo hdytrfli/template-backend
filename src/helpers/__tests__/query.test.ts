@@ -311,4 +311,60 @@ describe('QueryHelper', () => {
       });
     });
   });
+
+  describe('nested fields', () => {
+    it('parses a nested string field as a dot-notation regex', () => {
+      const { filter } = parse('http://example.com?filter[address.city]=New York');
+      const result = QueryHelper.parseFilter(filter);
+
+      expect(result).toEqual({
+        'address.city': {
+          $regex: 'New York',
+          $options: 'i',
+        },
+      });
+    });
+
+    it('parses a nested field with an operator', () => {
+      const { filter } = parse('http://example.com?filter[address.zip][gte]=10000');
+      const result = QueryHelper.parseFilter(filter);
+
+      expect(result).toEqual({
+        'address.zip': {
+          $gte: 10000,
+        },
+      });
+    });
+
+    it('sanitizeFilter keeps allowed nested fields', () => {
+      const { filter } = parse(
+        'http://example.com?filter[address.city]=New York&filter[status]=active',
+      );
+
+      const built = QueryHelper.parseFilter(filter);
+      const result = QueryHelper.sanitizeFilter(built, ['address.city']);
+
+      expect(result).toEqual({
+        'address.city': {
+          $regex: 'New York',
+          $options: 'i',
+        },
+      });
+    });
+
+    it('sanitizeFilter strips nested fields not in the allowed list', () => {
+      const { filter } = parse(
+        'http://example.com?filter[address.city]=New York&filter[address.zip][gte]=10000',
+      );
+
+      const built = QueryHelper.parseFilter(filter);
+      const result = QueryHelper.sanitizeFilter(built, ['address.zip']);
+
+      expect(result).toEqual({
+        'address.zip': {
+          $gte: 10000,
+        },
+      });
+    });
+  });
 });

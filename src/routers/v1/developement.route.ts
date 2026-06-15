@@ -56,19 +56,28 @@ router.get('/seed/companies', async (_req: Request, res: AppResponse<null>) => {
   const companies = [
     {
       name: 'Acme Technologies',
-      country: 'Indonesia',
+      country: {
+        code: 'ID',
+        label: 'Indonesia',
+      },
       email: 'contact@acme-tech.co.id',
       companyType: 'Software Development',
     },
     {
       name: 'Nusantara Digital',
-      country: 'Indonesia',
+      country: {
+        code: 'ID',
+        label: 'Indonesia',
+      },
       email: 'hello@nusantara-digital.com',
       companyType: 'Consulting',
     },
     {
       name: 'Regional Ventures Pte Ltd',
-      country: 'Singapore',
+      country: {
+        code: 'SG',
+        label: 'Singapore',
+      },
       email: 'info@regionalventures.sg',
       companyType: 'Finance',
     },

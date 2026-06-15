@@ -12,10 +12,7 @@ const schema = new Schema<PrivateUserDTO>(
     email: { type: String, default: '' },
     phone: { type: String, default: '' },
     lastLogin: { type: Date },
-    createdBy: {
-      ref: 'User',
-      type: Schema.Types.ObjectId,
-    },
+    createdBy: { ref: 'User', type: Schema.Types.ObjectId },
   },
   {
     timestamps: true,

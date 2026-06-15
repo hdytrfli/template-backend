@@ -41,8 +41,11 @@ export type PrivateUserDTO = UserDTO & {
 
 export type CompanyDTO = ModelBase & {
   name: string;
-  country: string;
+  type: string;
   email: string;
-  companyType: string;
+  country: {
+    code: string;
+    label: string;
+  };
   createdBy?: Types.ObjectId;
 };
