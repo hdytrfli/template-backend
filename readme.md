@@ -9,7 +9,7 @@ A production-ready backend template using Express 5, Mongoose, and TypeScript.
 
 ## Stack
 
-- **Runtime** Node.js with TypeScript (compiled via `tsgo`)
+- **Runtime** Node.js with TypeScript
 - **Framework** Express 5
 - **Database** MongoDB with Mongoose 9
 - **Validation** Zod
@@ -36,24 +36,19 @@ pnpm dev
 | Command          | Description                      |
 | ---------------- | -------------------------------- |
 | `pnpm dev`       | Run with hot reload (tsx watch)  |
-| `pnpm build`     | Compile TypeScript with tsgo     |
+| `pnpm build`     | Compile TypeScript with tsup     |
 | `pnpm start`     | Run compiled output              |
 | `pnpm typecheck` | Type-check without emitting      |
 | `pnpm lint`      | Lint with oxlint                 |
 | `pnpm format`    | Format with oxfmt                |
 | `pnpm check`     | Type-check + lint + format check |
 
-## Project Structure
+## Docker
 
-```
-src/
-├── controllers/     # Request handlers
-├── database/        # Database connection
-├── helpers/         # Shared utilities (errors, response types)
-├── libs/            # Config (env, logger)
-├── middlewares/      # Express middlewares
-├── models/          # Mongoose schemas & types
-├── routers/         # Route definitions
-├── services/        # Business logic
-└── index.ts         # App entry point
+```bash
+# build the image
+docker build -t template-backend .
+
+# run container (with a MongoDB instance)
+docker run -d --name template-backend -p 3000:3000 --env-file .env template-backend
 ```

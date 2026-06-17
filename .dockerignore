@@ -1,0 +1,12 @@
+node_modules
+.git
+.gitignore
+.env
+.env.example
+dist
+.vscode
+readme.md
+lefthook.yml
+vitest.config.ts
+.oxlintrc.json
+.oxfmtrc.json

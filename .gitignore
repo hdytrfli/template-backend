@@ -1,4 +1,39 @@
+# dependencies
 node_modules/
+.pnpm-store/
+
+# build output
 dist/
+
+# environment
 .env
-*.env.local
+.env.*
+!.env.example
+
+# logs
+*.log
+logs/
+npm-debug.log*
+pnpm-debug.log*
+
+# test coverage
+coverage/
+
+# ide
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# TypeScript
+*.tsbuildinfo
+
+# package manager
+.pnpm-lock-hash
+
+# temporary
+tmp/
+temp/

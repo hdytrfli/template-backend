@@ -11,13 +11,13 @@
     "build": "tsup",
     "dev": "tsx watch ./src/index.ts",
     "start": "node dist/index.js",
-    "typecheck": "tsgo --noEmit",
+    "typecheck": "tsc --noEmit",
     "lint": "oxlint",
     "format": "oxfmt --check",
     "fix": "oxfmt && oxlint --fix",
     "test": "vitest run",
     "test:watch": "vitest",
-    "check": "tsgo --noEmit && oxlint && oxfmt --check"
+    "check": "tsc --noEmit && oxlint && oxfmt --check"
   },
   "dependencies": {
     "amqplib": "^2.0.1",
@@ -45,7 +45,6 @@
     "@types/morgan": "^1.9.10",
     "@types/node": "^25.9.1",
     "@types/qs": "^6.15.1",
-    "@typescript/native-preview": "7.0.0-dev.20260527.2",
     "esbuild-plugin-tsconfig-paths": "^1.0.2",
     "lefthook": "^2.1.9",
     "oxfmt": "^0.52.0",
@@ -53,13 +52,8 @@
     "qs": "^6.15.2",
     "tsup": "^8.5.1",
     "tsx": "^4.22.4",
+    "typescript": "^6.0.3",
     "vitest": "^4.1.8"
   },
-  "devEngines": {
-    "packageManager": {
-      "name": "pnpm",
-      "version": "^11.5.0",
-      "onFail": "download"
-    }
-  }
+  "packageManager": "pnpm@11.5.1"
 }
