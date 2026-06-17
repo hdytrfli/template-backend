@@ -38,14 +38,3 @@ export type UserDTO = ModelBase & {
 export type PrivateUserDTO = UserDTO & {
   password: string;
 };
-
-export type CompanyDTO = ModelBase & {
-  name: string;
-  type: string;
-  email: string;
-  country: {
-    code: string;
-    label: string;
-  };
-  createdBy?: Types.ObjectId;
-};

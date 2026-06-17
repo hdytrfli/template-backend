@@ -3,7 +3,7 @@ import { createServer } from 'http';
 import express, { json } from 'express';
 import helmet from 'helmet';
 
-import { database, redis } from '@/database';
+import { database } from '@/database';
 import { env } from '@/libs/env';
 import { logger, log } from '@/libs/logger';
 import { catchall } from '@/middlewares/catch-all';
@@ -13,10 +13,6 @@ import { cors } from '@/middlewares/cors';
 import { reqid } from '@/middlewares/reqid';
 import { timer } from '@/middlewares/timer';
 import v1 from '@/routers/v1/index.route';
-import { QueueService } from '@/services/queue.service';
-import { socket } from '@/services/socket.service';
-import '@/workers/mail.worker';
-import '@/workers/welcome.worker';
 
 const app = express();
 const parser = json();
@@ -44,8 +40,6 @@ const server = createServer(app);
 
 async function main() {
   await database.connect();
-  await redis.connect();
-  socket.connect(server);
   server.listen(env.PORT, env.BIND, () => {
     log.info('[system] server is running on http://%s:%d', env.BIND, env.PORT);
   });
@@ -61,9 +55,6 @@ process.on('SIGINT', async () => {
 
   const promises = [
     database.disconnect(),
-    QueueService.cleanup(),
-    redis.disconnect(),
-    socket.disconnect(),
     //
   ];
 

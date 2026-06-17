@@ -7,7 +7,6 @@ import { COOKIE_OPTIONS } from '@/libs/constant';
 import { env } from '@/libs/env';
 import { UserRepository } from '@/repositories/user.repository';
 import { JWTService } from '@/services/jwt.service';
-import { QueueService } from '@/services/queue.service';
 import type { LoginData, AuthToken, UserDTO } from '@/types/model';
 import type { AppResponse } from '@/types/response';
 
@@ -62,14 +61,6 @@ export class AuthController {
     });
 
     const tokens = this.auth.generateTokens(user.id, user.level);
-
-    if (user.email) {
-      await QueueService.get('welcome').add('send-welcome', {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-      });
-    }
 
     res.cookie(env.COOKIE_REFRESH_KEY, tokens.refreshToken, COOKIE_OPTIONS);
     return res.status(201).json({
