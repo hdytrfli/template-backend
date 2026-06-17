@@ -30,7 +30,6 @@ const envSchema = z.object({
   COOKIE_SECRET: z.string().min(16).default('cookie-secret-min-16-chars!!'),
   COOKIE_DOMAIN: z.string().optional(),
   COOKIE_REFRESH_KEY: z.string(),
-  REDIS_URL: z.string().default('redis://127.0.0.1:6379'),
 });
 
 const { success, error, data } = envSchema.safeParse(process.env);

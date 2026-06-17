@@ -18,3 +18,5 @@ export type PaginationMeta = {
   total: number;
   totalPages: number;
 };
+
+export type RequestMethod = 'GET' | 'POST' | 'PATCH' | 'DELETE';

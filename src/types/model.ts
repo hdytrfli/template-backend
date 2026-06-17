@@ -1,5 +1,7 @@
 import type { Types } from 'mongoose';
 
+import type { RequestMethod } from '@/types/util';
+
 export type AuthToken = {
   accessToken: string;
 };
@@ -37,4 +39,16 @@ export type UserDTO = ModelBase & {
 
 export type PrivateUserDTO = UserDTO & {
   password: string;
+};
+
+export type LogDTO = Timestamp & {
+  requestId: string;
+  requestMethod: RequestMethod;
+  requestPath: string;
+  ipAddress: string;
+  environment: string;
+  statusCode: number;
+  userAgent?: string;
+  duration?: number;
+  user?: Types.ObjectId;
 };

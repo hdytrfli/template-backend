@@ -29,3 +29,6 @@ export const COOKIE_OPTIONS = {
   secure: env.NODE_ENV === 'production',
   signed: true,
 };
+
+/* Log time to live */
+export const LOG_TTL = 60 * 60 * 24 * 90;

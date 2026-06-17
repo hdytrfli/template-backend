@@ -6,6 +6,7 @@ import helmet from 'helmet';
 import { database } from '@/database';
 import { env } from '@/libs/env';
 import { logger, log } from '@/libs/logger';
+import { activityLog } from '@/middlewares/activity-log';
 import { catchall } from '@/middlewares/catch-all';
 import { catcherr } from '@/middlewares/catch-error';
 import { cookie } from '@/middlewares/cookie';
@@ -30,6 +31,7 @@ app.use(
 );
 app.use(logger);
 app.use(timer);
+app.use(activityLog);
 
 app.set('query parser', 'extended');
 app.use('/api/v1', v1);
