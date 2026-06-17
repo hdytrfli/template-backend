@@ -11,7 +11,7 @@ import { JWTService } from '@/services/jwt.service';
 import type { LoginData, AuthToken, UserDTO } from '@/types/model';
 import type { AppResponse } from '@/types/response';
 
-const registerSchema = z.object({
+const registerSchema = z.strictObject({
   username: z.string().min(3).max(50),
   password: z.string().min(6).max(128),
   name: z.string().min(1).max(100),
@@ -19,20 +19,19 @@ const registerSchema = z.object({
   phone: z.string().optional(),
 });
 
-const loginSchema = z.object({
-  username: z.string().min(1),
-  password: z.string().min(1),
-});
-
-const changePasswordSchema = z.object({
+const changePasswordSchema = z.strictObject({
   currentPassword: z.string().min(1),
   newPassword: z.string().min(6).max(128),
 });
 
-const updateProfileSchema = z.object({
-  name: z.string().min(1).max(100).optional(),
-  email: z.email().optional(),
-  phone: z.string().optional(),
+const loginSchema = registerSchema.pick({
+  username: true,
+  password: true,
+});
+
+const updateProfileSchema = registerSchema.omit({
+  username: true,
+  password: true,
 });
 
 const paramsSchema = z.object({
