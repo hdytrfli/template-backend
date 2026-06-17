@@ -22,14 +22,14 @@ const envSchema = z.object({
   MONGODB_URI: z.string().refine(validateMongoUri, {
     message: 'MONGODB_URI must start with mongodb:// or mongodb+srv://',
   }),
-  JWT_SECRET: z.string().min(32),
+  COOKIE_SECRET: z.string().min(16).default('cookie-secret-min-16-chars!!'),
+  COOKIE_DOMAIN: z.string().optional(),
+  JWT_ACCESS_SECRET: z.string().min(32),
   JWT_REFRESH_SECRET: z.string().min(32).default('local-dev-refresh-secret-min-32-chars'),
   JWT_ACCESS_EXPIRES_IN: z.string().default('15m'),
   JWT_REFRESH_EXPIRES_IN: z.string().default('7d'),
   JWT_ACCESS_TOKEN_NAME: z.string().default('Bearer'),
-  COOKIE_SECRET: z.string().min(16).default('cookie-secret-min-16-chars!!'),
-  COOKIE_DOMAIN: z.string().optional(),
-  COOKIE_REFRESH_KEY: z.string(),
+  JWT_REFRESH_TOKEN_NAME: z.string(),
 });
 
 const { success, error, data } = envSchema.safeParse(process.env);

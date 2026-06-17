@@ -67,7 +67,7 @@ export class AuthController {
 
     const tokens = this.auth.generateTokens(user.id, user.level);
 
-    res.cookie(env.COOKIE_REFRESH_KEY, tokens.refreshToken, COOKIE_OPTIONS);
+    res.cookie(env.JWT_REFRESH_TOKEN_NAME, tokens.refreshToken, COOKIE_OPTIONS);
     return res.status(201).json({
       success: true,
       data: {
@@ -89,7 +89,7 @@ export class AuthController {
     const tokens = this.auth.generateTokens(user.id, user.level);
     await this.respository.update({ _id: user.id }, { lastLogin: new Date() });
 
-    res.cookie(env.COOKIE_REFRESH_KEY, tokens.refreshToken, COOKIE_OPTIONS);
+    res.cookie(env.JWT_REFRESH_TOKEN_NAME, tokens.refreshToken, COOKIE_OPTIONS);
     return res.json({
       success: true,
       data: {
@@ -100,13 +100,13 @@ export class AuthController {
   };
 
   refresh = async (req: Request, res: AppResponse<AuthToken>) => {
-    const refreshToken = req.signedCookies?.[env.COOKIE_REFRESH_KEY];
+    const refreshToken = req.signedCookies?.[env.JWT_REFRESH_TOKEN_NAME];
     if (!refreshToken) throw new UnauthorizedError('No refresh token');
 
     const payload = this.auth.verifyRefreshToken(refreshToken);
     const tokens = this.auth.generateTokens(payload.sub, payload.level);
 
-    res.cookie(env.COOKIE_REFRESH_KEY, tokens.refreshToken, COOKIE_OPTIONS);
+    res.cookie(env.JWT_REFRESH_TOKEN_NAME, tokens.refreshToken, COOKIE_OPTIONS);
     return res.json({
       success: true,
       data: { accessToken: tokens.accessToken },
@@ -120,7 +120,7 @@ export class AuthController {
   };
 
   logout = async (_req: Request, res: AppResponse<null>) => {
-    res.clearCookie(env.COOKIE_REFRESH_KEY, COOKIE_OPTIONS);
+    res.clearCookie(env.JWT_REFRESH_TOKEN_NAME, COOKIE_OPTIONS);
 
     return res.json({
       success: true,
