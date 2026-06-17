@@ -1,4 +1,5 @@
 import type { Request } from 'express';
+import { Types } from 'mongoose';
 import * as z from 'zod';
 
 import { ConflictError, NotFoundError, UnauthorizedError } from '@/helpers/error';
@@ -35,7 +36,12 @@ const updateProfileSchema = z.object({
 });
 
 const paramsSchema = z.object({
-  id: z.string().length(24),
+  id: z
+    .string()
+    .length(24)
+    .refine((value) => {
+      return Types.ObjectId.isValid(value);
+    }),
 });
 
 /**
