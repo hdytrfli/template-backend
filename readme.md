@@ -64,22 +64,21 @@ docker compose up -d
 
 Two workflows:
 
-- **CI** runs on push to `main` installs, type-checks, lints, tests, verifies build.
-- **Deploy** runs on push to `deploy`full pipeline including Docker push and Kubernetes deploy.
+- **CI** runs on push to `main` — installs, type-checks, lints, tests, verifies build.
+- **Deploy** runs on push to `deploy` — full pipeline: checks, tests, Docker build + push, and K3s rolling update.
 
 Requires self-hosted runners with labels `builder` and `deployer`.
 
 Configure these secrets in **Settings → Secrets and variables → Actions**:
 
-| Secret             | Description                |
-| ------------------ | -------------------------- |
-| `DOCKER_REGISTRY`  | Container registry URL     |
-| `DOCKER_USERNAME`  | Registry username          |
-| `DOCKER_PASSWORD`  | Registry password or token |
-| `DOCKER_IMAGE`     | Docker image name          |
-| `K8S_NAMESPACE`    | Kubernetes namespace       |
-| `K8S_SERVICE_NAME` | Kubernetes deployment name |
-| `DATABASE_URI`     | MongoDB connection string  |
-| `BOT_TOKEN`        | Telegram bot token         |
-| `CHAT_ID`          | Telegram chat ID           |
-| `KUBECONFIG`       | Base64-encoded kubeconfig  |
+| Secret            | Description                |
+| ----------------- | -------------------------- |
+| `DOCKER_REGISTRY` | Container registry URL     |
+| `DOCKER_USERNAME` | Registry username          |
+| `DOCKER_PASSWORD` | Registry password or token |
+| `DOCKER_IMAGE`    | Docker image name          |
+| `NAMESPACE`       | K3s namespace              |
+| `SERVICE_NAME`    | K3s deployment name        |
+| `KUBECONFIG`      | K3s kubeconfig content     |
+| `BOT_TOKEN`       | Telegram bot token         |
+| `CHAT_ID`         | Telegram chat ID           |

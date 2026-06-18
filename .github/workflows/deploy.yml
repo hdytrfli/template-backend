@@ -5,44 +5,45 @@ on:
     branches: [deploy]
 
 jobs:
-  initialize:
+  initial:
     runs-on: [self-hosted, builder]
 
     steps:
-      - uses: actions/checkout@v4
-        name: Checkout code
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - uses: .github/actions/notify
-        name: Notify workflow started
+      - name: Notify workflow started
+        uses: .github/actions/notify
         with:
           status: started
           phase: Deploy
 
   build:
     runs-on: [self-hosted, builder]
-    needs: initialize
+
+    needs: initial
 
     env:
       COREPACK_ENABLE_STRICT: '0'
 
     steps:
-      - uses: actions/checkout@v4
-        name: Checkout code
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - run: corepack enable
-        name: Enable pnpm
+      - name: Enable pnpm
+        run: corepack enable
 
-      - run: pnpm install --frozen-lockfile
-        name: Install dependencies
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
-      - run: pnpm check
-        name: Type-check, lint, and format
+      - name: Type-check, lint, and format
+        run: pnpm check
 
-      - run: pnpm test
-        name: Run tests
+      - name: Run tests
+        run: pnpm test
 
-      - run: pnpm build
-        name: Build
+      - name: Build
+        run: pnpm build
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -68,8 +69,8 @@ jobs:
           cache-from: type=registry,ref=${{ secrets.DOCKER_REGISTRY }}/${{ secrets.DOCKER_IMAGE }}:buildcache
           cache-to: type=registry,ref=${{ secrets.DOCKER_REGISTRY }}/${{ secrets.DOCKER_IMAGE }}:buildcache,mode=max
 
-      - uses: .github/actions/notify
-        name: Notify build result
+      - name: Notify build result
+        uses: .github/actions/notify
         with:
           status: ${{ job.status }}
           phase: Build
@@ -80,45 +81,25 @@ jobs:
     needs: build
 
     steps:
-      - uses: actions/checkout@v4
-        name: Checkout code
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Setup kubectl
         uses: azure/setup-kubectl@v3
 
-      - name: Set up KubeConfig
+      - name: Configure K3s
         run: |
-          echo "${{ secrets.KUBECONFIG }}" > kubeconfig
-          export KUBECONFIG=$PWD/kubeconfig
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBECONFIG }}" > ~/.kube/config
 
-      - id: commit
-        shell: bash
+      - name: Deploy to K3s
         run: |
-          COMMIT_MSG=$(git log -1 --pretty=%B | tr -d '\n' | cut -c1-240)
-          echo "COMMIT_MSG=$COMMIT_MSG" >> $GITHUB_ENV
+          kubectl set env deployment/${{ secrets.SERVICE_NAME }} BUILD_VERSION=${{ github.sha }} BUILD_DATE=${{ github.event.head_commit.timestamp }} -n ${{ secrets.NAMESPACE }}
+          kubectl set image deployment/${{ secrets.SERVICE_NAME }} ${{ secrets.SERVICE_NAME }}=${{ secrets.DOCKER_REGISTRY }}/${{ secrets.DOCKER_IMAGE }}:${{ github.sha }} -n ${{ secrets.NAMESPACE }}
+          kubectl annotate deployment/${{ secrets.SERVICE_NAME }} "git-commit-message=${{ github.event.head_commit.message }}" -n ${{ secrets.NAMESPACE }} --overwrite
 
-      - shell: bash
-        run: |
-          for file in ./k8s/*.yaml; do
-            sed \
-              -e "s|\${IMAGE}|${{ secrets.DOCKER_REGISTRY }}/${{ secrets.DOCKER_IMAGE }}:${{ github.sha }}|g" \
-              -e "s|\${NAMESPACE}|${{ secrets.K8S_NAMESPACE }}|g" \
-              -e "s|\${SERVICE-NAME}|${{ secrets.K8S_SERVICE_NAME }}|g" \
-              -e "s|\${DB_CONNECTION}|${{ secrets.DATABASE_URI }}|g" \
-              -e "s|\${VERSION}|${{ github.sha }}|g" \
-              -e "s|\${COMMAND}|start|g" \
-              -e "s|\${INSTANCE}|1|g" \
-              -i "$file"
-          done
-
-      - shell: bash
-        run: |
-          kubectl --kubeconfig=kubeconfig apply -f ./k8s/
-          kubectl --kubeconfig=kubeconfig rollout restart deployment ${{ secrets.K8S_SERVICE_NAME }} -n ${{ secrets.K8S_NAMESPACE }}
-          kubectl --kubeconfig=kubeconfig annotate deployment ${{ secrets.K8S_SERVICE_NAME }} git-commit-message="${{ env.COMMIT_MSG }}" -n ${{ secrets.K8S_NAMESPACE }} --overwrite
-
-      - uses: .github/actions/notify
-        name: Notify deploy result
+      - name: Notify deploy result
+        uses: .github/actions/notify
         with:
           status: ${{ job.status }}
           phase: Deploy
