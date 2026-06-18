@@ -10,10 +10,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Notify workflow started
-        uses: .github/actions/notify
+        uses: ./.github/actions/notify
         with:
           status: started
           phase: Deploy
@@ -28,7 +28,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Enable pnpm
         run: corepack enable
@@ -70,7 +70,7 @@ jobs:
           cache-to: type=registry,ref=${{ secrets.DOCKER_REGISTRY }}/${{ secrets.DOCKER_IMAGE }}:buildcache,mode=max
 
       - name: Notify build result
-        uses: .github/actions/notify
+        uses: ./.github/actions/notify
         with:
           status: ${{ job.status }}
           phase: Build
@@ -82,7 +82,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup kubectl
         uses: azure/setup-kubectl@v3
@@ -99,7 +99,7 @@ jobs:
           kubectl annotate deployment/${{ secrets.SERVICE_NAME }} "git-commit-message=${{ github.event.head_commit.message }}" -n ${{ secrets.NAMESPACE }} --overwrite
 
       - name: Notify deploy result
-        uses: .github/actions/notify
+        uses: ./.github/actions/notify
         with:
           status: ${{ job.status }}
           phase: Deploy

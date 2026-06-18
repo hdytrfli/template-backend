@@ -12,7 +12,7 @@ jobs:
       COREPACK_ENABLE_STRICT: '0'
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         name: Checkout code
 
       - run: corepack enable
