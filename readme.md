@@ -80,3 +80,6 @@ Configure these secrets in **Settings → Secrets and variables → Actions**:
 | `K8S_NAMESPACE`    | Kubernetes namespace       |
 | `K8S_SERVICE_NAME` | Kubernetes deployment name |
 | `DATABASE_URI`     | MongoDB connection string  |
+| `BOT_TOKEN`        | Telegram bot token         |
+| `CHAT_ID`          | Telegram chat ID           |
+| `KUBECONFIG`       | Base64-encoded kubeconfig  |

@@ -1,0 +1,59 @@
+name: Notify Telegram
+
+description: Send deployment notification to Telegram
+
+inputs:
+  status:
+    description: Status text (started, success, failure)
+    required: true
+
+  phase:
+    description: Phase text (Build, Deploy)
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - uses: appleboy/telegram-action@master
+      if: inputs.status == 'started'
+      with:
+        to: ${{ secrets.CHAT_ID }}
+        token: ${{ secrets.BOT_TOKEN }}
+        format: Markdown
+        message: |
+          🚀 Workflow *${{ github.workflow }}* started
+          🧑‍💻 By: ${{ github.actor }}
+          🔖 Commit: `${{ github.sha }}`
+          🔀 Branch: ${{ github.ref_name }}
+          📝 Message: _${{ github.event.head_commit.message }}_
+          🔗 Progress: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+    - uses: appleboy/telegram-action@master
+      if: inputs.status == 'success'
+      with:
+        to: ${{ secrets.CHAT_ID }}
+        token: ${{ secrets.BOT_TOKEN }}
+        format: Markdown
+        message: |
+          Workflows ${{ inputs.phase }}
+          ✅ Success: ${{ github.repository }}
+          🧑‍💻 By: ${{ github.actor }}
+          🔖 Commit: `${{ github.sha }}`
+          🔀 Branch: ${{ github.ref_name }}
+          📝 Message: _${{ github.event.head_commit.message }}_
+          🔗 Progress: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+    - uses: appleboy/telegram-action@master
+      if: inputs.status == 'failure'
+      with:
+        to: ${{ secrets.CHAT_ID }}
+        token: ${{ secrets.BOT_TOKEN }}
+        format: Markdown
+        message: |
+          Workflows ${{ inputs.phase }}
+          ❌ Failed: ${{ github.repository }}
+          🧑‍💻 By: ${{ github.actor }}
+          🔖 Commit: `${{ github.sha }}`
+          🔀 Branch: ${{ github.ref_name }}
+          📝 Message: _${{ github.event.head_commit.message }}_
+          🔗 Progress: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}

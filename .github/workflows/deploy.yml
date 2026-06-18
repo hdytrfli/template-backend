@@ -5,8 +5,22 @@ on:
     branches: [deploy]
 
 jobs:
+  initialize:
+    runs-on: [self-hosted, builder]
+
+    steps:
+      - uses: actions/checkout@v4
+        name: Checkout code
+
+      - uses: .github/actions/notify
+        name: Notify workflow started
+        with:
+          status: started
+          phase: Deploy
+
   build:
     runs-on: [self-hosted, builder]
+    needs: initialize
 
     env:
       COREPACK_ENABLE_STRICT: '0'
@@ -30,11 +44,35 @@ jobs:
       - run: pnpm build
         name: Build
 
-      - name: Login to registry
-        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login ${{ secrets.DOCKER_REGISTRY }} -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          install: true
+
+      - name: Log in to registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ secrets.DOCKER_REGISTRY }}
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build and push Docker image
-        run: docker buildx build -t ${{ secrets.DOCKER_REGISTRY }}/${{ secrets.DOCKER_IMAGE }}:${{ github.sha }} --platform linux/amd64,linux/arm64 . --push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          platforms: linux/amd64
+          tags: |
+            ${{ secrets.DOCKER_REGISTRY }}/${{ secrets.DOCKER_IMAGE }}:${{ github.sha }}
+            ${{ secrets.DOCKER_REGISTRY }}/${{ secrets.DOCKER_IMAGE }}:latest
+          cache-from: type=registry,ref=${{ secrets.DOCKER_REGISTRY }}/${{ secrets.DOCKER_IMAGE }}:buildcache
+          cache-to: type=registry,ref=${{ secrets.DOCKER_REGISTRY }}/${{ secrets.DOCKER_IMAGE }}:buildcache,mode=max
+
+      - uses: .github/actions/notify
+        name: Notify build result
+        with:
+          status: ${{ job.status }}
+          phase: Build
 
   deploy:
     runs-on: [self-hosted, deployer]
@@ -44,6 +82,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         name: Checkout code
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+
+      - name: Set up KubeConfig
+        run: |
+          echo "${{ secrets.KUBECONFIG }}" > kubeconfig
+          export KUBECONFIG=$PWD/kubeconfig
 
       - id: commit
         shell: bash
@@ -67,6 +113,12 @@ jobs:
 
       - shell: bash
         run: |
-          kubectl apply -f ./k8s/
-          kubectl rollout restart deployment ${{ secrets.K8S_SERVICE_NAME }} -n ${{ secrets.K8S_NAMESPACE }}
-          kubectl annotate deployment ${{ secrets.K8S_SERVICE_NAME }} git-commit-message="${{ env.COMMIT_MSG }}" -n ${{ secrets.K8S_NAMESPACE }} --overwrite
+          kubectl --kubeconfig=kubeconfig apply -f ./k8s/
+          kubectl --kubeconfig=kubeconfig rollout restart deployment ${{ secrets.K8S_SERVICE_NAME }} -n ${{ secrets.K8S_NAMESPACE }}
+          kubectl --kubeconfig=kubeconfig annotate deployment ${{ secrets.K8S_SERVICE_NAME }} git-commit-message="${{ env.COMMIT_MSG }}" -n ${{ secrets.K8S_NAMESPACE }} --overwrite
+
+      - uses: .github/actions/notify
+        name: Notify deploy result
+        with:
+          status: ${{ job.status }}
+          phase: Deploy
