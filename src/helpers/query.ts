@@ -1,7 +1,18 @@
 import type { QueryFilter } from 'mongoose';
 
-import { OPERATORS } from '@/libs/constant';
 import type { FilterKeys, SortParams } from '@/types/util';
+
+type OperatorMapper = (value: string) => Record<string, unknown>;
+
+const OPERATORS: Record<string, OperatorMapper> = {
+  regex: (v) => ({ $regex: v, $options: 'i' }),
+  ne: (v) => ({ $ne: v }),
+  gte: (v) => ({ $gte: Number(v) }),
+  gt: (v) => ({ $gt: Number(v) }),
+  lte: (v) => ({ $lte: Number(v) }),
+  lt: (v) => ({ $lt: Number(v) }),
+  in: (v) => ({ $in: v.split(',') }),
+};
 
 /**
  * Build a Mongoose filter from bracket-notation query params.
