@@ -27,6 +27,9 @@ pnpm install
 # copy and fill environment variables
 cp .env.example .env
 
+# copy and fill environment variables for production
+cp .env.example .env.production
+
 # start development server with hot reload
 pnpm dev
 ```
@@ -47,8 +50,11 @@ pnpm dev
 
 ```bash
 # build the image
-docker build -t template-backend .
+docker build -t template-application .
 
-# run container (with a MongoDB instance)
-docker run -d --name template-backend -p 3000:3000 --env-file .env template-backend
+# run container
+docker run -d --name template-application -p 3000:3000 --env-file .env template-application
+
+# run with docker Compose
+docker compose up -d
 ```

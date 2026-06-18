@@ -1,0 +1,41 @@
+name: template
+
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: template-database
+    volumes:
+      - data:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+      MONGO_INITDB_DATABASE: database
+    restart: unless-stopped
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh --quiet
+      interval: 10s
+      retries: 5
+      start_period: 20s
+
+  application:
+    build: .
+    image: template-application:latest
+    container_name: template-application
+    env_file: .env.production
+    environment:
+      MONGODB_URI: mongodb://root:example@mongodb:27017/database?authSource=admin
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    ports:
+      - 3000:3000
+    restart: unless-stopped
+    healthcheck:
+      test: wget --no-verbose --tries=1 http://localhost:3000/api/v1/debug/healthcheck
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  data:
