@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    env:
+      COREPACK_ENABLE_STRICT: '0'
+
+    steps:
+      - uses: actions/checkout@v4
+        name: Checkout code
+
+      - run: corepack enable
+        name: Enable pnpm
+
+      - run: pnpm install --frozen-lockfile
+        name: Install dependencies
+
+      - run: pnpm check
+        name: Type-check, lint, and format
+
+      - run: pnpm test
+        name: Run tests
+
+      - run: pnpm build
+        name: Build

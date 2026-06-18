@@ -56,15 +56,20 @@ docker build -t template-application .
 # run container
 docker run -d --name template-application -p 3000:3000 --env-file .env template-application
 
-# run with Compose
+# run with compose
 docker compose up -d
 ```
 
 ## GitHub Actions
 
-The pipeline expects two self-hosted runners registered in **Settings → Actions → Runners** with the labels `builder` and `deployer`.
+Two workflows:
 
-The following secrets must be configured in **Settings → Secrets and variables → Actions**:
+- **CI** runs on push to `main` installs, type-checks, lints, tests, verifies build.
+- **Deploy** runs on push to `deploy`full pipeline including Docker push and Kubernetes deploy.
+
+Requires self-hosted runners with labels `builder` and `deployer`.
+
+Configure these secrets in **Settings → Secrets and variables → Actions**:
 
 | Secret             | Description                |
 | ------------------ | -------------------------- |
