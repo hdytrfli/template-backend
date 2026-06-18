@@ -36,15 +36,16 @@ pnpm dev
 
 ## Scripts
 
-| Command          | Description                      |
-| ---------------- | -------------------------------- |
-| `pnpm dev`       | Run with hot reload (tsx watch)  |
-| `pnpm build`     | Compile TypeScript with tsup     |
-| `pnpm start`     | Run compiled output              |
-| `pnpm typecheck` | Type-check without emitting      |
-| `pnpm lint`      | Lint with oxlint                 |
-| `pnpm format`    | Format with oxfmt                |
-| `pnpm check`     | Type-check + lint + format check |
+| Command          | Description                         |
+| ---------------- | ----------------------------------- |
+| `pnpm dev`       | Run with hot reload (tsx watch)     |
+| `pnpm build`     | Compile TypeScript with tsup        |
+| `pnpm start`     | Run compiled output                 |
+| `pnpm typecheck` | Type-check without emitting         |
+| `pnpm lint`      | Lint with oxlint                    |
+| `pnpm format`    | Format with oxfmt                   |
+| `pnpm check`     | Type-check + lint + format check    |
+| `pnpm fix`       | Fix the lint + format automatically |
 
 ## Docker
 
@@ -55,6 +56,22 @@ docker build -t template-application .
 # run container
 docker run -d --name template-application -p 3000:3000 --env-file .env template-application
 
-# run with docker Compose
+# run with Compose
 docker compose up -d
 ```
+
+## GitHub Actions
+
+The pipeline expects two self-hosted runners registered in **Settings → Actions → Runners** with the labels `builder` and `deployer`.
+
+The following secrets must be configured in **Settings → Secrets and variables → Actions**:
+
+| Secret             | Description                |
+| ------------------ | -------------------------- |
+| `DOCKER_REGISTRY`  | Container registry URL     |
+| `DOCKER_USERNAME`  | Registry username          |
+| `DOCKER_PASSWORD`  | Registry password or token |
+| `DOCKER_IMAGE`     | Docker image name          |
+| `K8S_NAMESPACE`    | Kubernetes namespace       |
+| `K8S_SERVICE_NAME` | Kubernetes deployment name |
+| `DATABASE_URI`     | MongoDB connection string  |

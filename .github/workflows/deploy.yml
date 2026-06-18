@@ -1,0 +1,56 @@
+name: Backend Builder and Deployer
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: [self-hosted, builder]
+
+    env:
+      COREPACK_ENABLE_STRICT: '0'
+
+    steps:
+      - uses: actions/checkout@v4
+        name: Checkout code
+
+      - run: corepack enable
+        name: Enable pnpm
+
+      - run: pnpm install --frozen-lockfile
+        name: Install dependencies
+
+      - run: pnpm check
+        name: Type-check, lint, and format
+
+      - run: pnpm test
+        name: Run tests
+
+      - run: pnpm build
+        name: Build
+
+      - name: Login to registry
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login ${{ secrets.DOCKER_REGISTRY }} -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      - name: Build and push Docker image
+        run: docker buildx build -t ${{ secrets.DOCKER_REGISTRY }}/${{ secrets.DOCKER_IMAGE }}:${{ github.sha }} --platform linux/amd64,linux/arm64 . --push
+
+  deploy:
+    runs-on: [self-hosted, deployer]
+
+    needs: build
+
+    steps:
+      - uses: actions/checkout@v4
+        name: Checkout code
+
+      - uses: .github/actions/deployer
+        name: Deploy to Kubernetes
+        with:
+          namespace: ${{ secrets.K8S_NAMESPACE }}
+          service-name: ${{ secrets.K8S_SERVICE_NAME }}
+          database-uri: ${{ secrets.DATABASE_URI }}
+          image: ${{ secrets.DOCKER_REGISTRY }}/${{ secrets.DOCKER_IMAGE }}:${{ github.sha }}
+          command: start
+          instance: '1'

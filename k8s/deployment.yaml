@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+
+kind: Deployment
+
+metadata:
+  name: ${SERVICE-NAME}
+  namespace: ${NAMESPACE}
+
+spec:
+  replicas: ${INSTANCE}
+
+  selector:
+    matchLabels:
+      app: ${SERVICE-NAME}
+
+  template:
+    metadata:
+      labels:
+        app: ${SERVICE-NAME}
+        version: ${VERSION}
+
+    spec:
+      imagePullSecrets:
+        - name: registry-esi
+
+      containers:
+        - name: ${SERVICE-NAME}
+          image: ${IMAGE}
+          command: ['pnpm', 'run', '${COMMAND}']
+
+          ports:
+            - containerPort: 3000
+
+          resources:
+            limits:
+              memory: '512Mi'
+              cpu: '300m'
+            requests:
+              memory: '256Mi'
+              cpu: '200m'
+
+          env:
+            - name: NODE_ENV
+              value: production
+
+            - name: PORT
+              value: '3000'
+
+            - name: DB_CONNECTION
+              value: ${DB_CONNECTION}
+
+          envFrom:
+            - secretRef:
+                name: ${SERVICE-NAME}-env
