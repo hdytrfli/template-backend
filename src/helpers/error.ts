@@ -12,19 +12,20 @@ export class AppError extends Error {
 
 export class NotFoundError extends AppError {
   constructor(resource: string = 'Resource') {
-    super(resource + ' not found', 404);
+    const message = resource + ' not found';
+    super(message, 404);
   }
 }
 
 export class ValidationError extends AppError {
   constructor(message: string = 'Data is not valid, re-check the payload') {
-    super(message, 400);
+    super(message, 422);
   }
 }
 
 export class ConflictError extends AppError {
   constructor(message: string = 'Data already exists or violates duplicate constraint') {
-    super(message, 401);
+    super(message, 409);
   }
 }
 

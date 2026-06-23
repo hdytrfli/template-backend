@@ -4,6 +4,10 @@ import { env } from '@/libs/env';
 import { ActivityLog } from '@/models/activity-log';
 import type { RequestMethod } from '@/types/util';
 
+/**
+ * Middleware that listen on finish requests event and persist
+ * requests metadata to database
+ */
 export const activityLog = (req: Request, res: Response, next: NextFunction) => {
   res.on('finish', () => {
     const duration = res.getHeader('X-Execution-Time-Ms') as string;

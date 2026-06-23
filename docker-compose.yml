@@ -31,7 +31,7 @@ services:
       - 3000:3000
     restart: unless-stopped
     healthcheck:
-      test: wget --no-verbose --tries=1 http://localhost:3000/api/v1/debug/healthcheck
+      test: wget --no-verbose --tries=1 http://application:3000/api/v1/debug/healthcheck
       interval: 30s
       timeout: 10s
       retries: 3

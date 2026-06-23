@@ -24,7 +24,7 @@ const envSchema = z.object({
   }),
   COOKIE_SECRET: z.string().min(16).default('cookie-secret-min-16-chars!!'),
   COOKIE_DOMAIN: z.string().optional(),
-  JWT_ACCESS_SECRET: z.string().min(32),
+  JWT_ACCESS_SECRET: z.string().min(32).default('change-me-to-a-long-random-secret-key'),
   JWT_REFRESH_SECRET: z.string().min(32).default('local-dev-refresh-secret-min-32-chars'),
   JWT_ACCESS_EXPIRES_IN: z.string().default('15m'),
   JWT_REFRESH_EXPIRES_IN: z.string().default('7d'),
