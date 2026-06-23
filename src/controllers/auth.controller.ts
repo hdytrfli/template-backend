@@ -65,7 +65,7 @@ export class AuthController {
       phone: data.phone,
     });
 
-    const tokens = this.auth.generateTokens(user.id, user.level);
+    const tokens = await this.auth.generateTokens(user.id, user.level);
 
     res.cookie(env.JWT_REFRESH_TOKEN_NAME, tokens.refreshToken, COOKIE_OPTIONS);
     return res.status(201).json({
@@ -86,7 +86,7 @@ export class AuthController {
     const matched = Hash.compare(password, user.password);
     if (!matched) throw new UnauthorizedError('Invalid credentials');
 
-    const tokens = this.auth.generateTokens(user.id, user.level);
+    const tokens = await this.auth.generateTokens(user.id, user.level);
     await this.respository.update({ _id: user.id }, { lastLogin: new Date() });
 
     res.cookie(env.JWT_REFRESH_TOKEN_NAME, tokens.refreshToken, COOKIE_OPTIONS);
@@ -103,8 +103,8 @@ export class AuthController {
     const refreshToken = req.signedCookies?.[env.JWT_REFRESH_TOKEN_NAME];
     if (!refreshToken) throw new UnauthorizedError('No refresh token');
 
-    const payload = this.auth.verifyRefreshToken(refreshToken);
-    const tokens = this.auth.generateTokens(payload.sub, payload.level);
+    const payload = await this.auth.verifyRefreshToken(refreshToken);
+    const tokens = await this.auth.generateTokens(payload.sub, payload.level);
 
     res.cookie(env.JWT_REFRESH_TOKEN_NAME, tokens.refreshToken, COOKIE_OPTIONS);
     return res.json({

@@ -38,3 +38,6 @@ Thumbs.db
 # temporary
 tmp/
 temp/
+
+# keys
+keys/*.pem
