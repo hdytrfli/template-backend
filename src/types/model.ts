@@ -10,11 +10,6 @@ export type LoginData = AuthToken & {
   user: UserDTO;
 };
 
-export type MailRecipient = {
-  email: string;
-  name: string;
-};
-
 export type Timestamp = {
   createdAt?: Date;
   updatedAt?: Date;

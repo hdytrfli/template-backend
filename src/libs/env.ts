@@ -22,6 +22,7 @@ const envSchema = z.object({
   MONGODB_URI: z.string().refine(validateMongoUri, {
     message: 'MONGODB_URI must start with mongodb:// or mongodb+srv://',
   }),
+  REDIS_URI: z.string().default('redis://127.0.0.1:6379'),
   COOKIE_SECRET: z.string().min(16).default('cookie-secret-min-16-chars!!'),
   COOKIE_DOMAIN: z.string().optional(),
   JWT_ACCESS_SECRET: z.string().min(32).default('change-me-to-a-long-random-secret-key'),
