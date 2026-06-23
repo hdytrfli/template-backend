@@ -3,7 +3,7 @@ import { createServer } from 'http';
 import express, { json } from 'express';
 import helmet from 'helmet';
 
-import { database } from '@/database';
+import { database, rabbit } from '@/database';
 import { env } from '@/libs/env';
 import { logger, log } from '@/libs/logger';
 import { activityLog } from '@/middlewares/activity-log';
@@ -42,6 +42,11 @@ const server = createServer(app);
 
 async function main() {
   await database.connect();
+  await rabbit.connect();
+
+  await import('@/loaders/workers');
+  await import('@/loaders/consumers');
+
   server.listen(env.PORT, env.BIND, () => {
     log.info('[system] server is running on http://%s:%d', env.BIND, env.PORT);
   });
@@ -57,6 +62,7 @@ process.on('SIGINT', async () => {
 
   const promises = [
     database.disconnect(),
+    rabbit.disconnect(),
     //
   ];
 
