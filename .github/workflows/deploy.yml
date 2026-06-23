@@ -17,6 +17,8 @@ jobs:
         with:
           status: started
           phase: Deploy
+          chat_id: ${{ secrets.CHAT_ID }}
+          bot_token: ${{ secrets.BOT_TOKEN }}
 
   build:
     runs-on: [self-hosted, builder]
@@ -74,6 +76,8 @@ jobs:
         with:
           status: ${{ job.status }}
           phase: Build
+          chat_id: ${{ secrets.CHAT_ID }}
+          bot_token: ${{ secrets.BOT_TOKEN }}
 
   deploy:
     runs-on: [self-hosted, deployer]
@@ -103,3 +107,5 @@ jobs:
         with:
           status: ${{ job.status }}
           phase: Deploy
+          chat_id: ${{ secrets.CHAT_ID }}
+          bot_token: ${{ secrets.BOT_TOKEN }}

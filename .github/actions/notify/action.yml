@@ -3,6 +3,14 @@ name: Notify Telegram
 description: Send deployment notification to Telegram
 
 inputs:
+  chat_id:
+    description: Telegram chat id
+    required: true
+
+  bot_token:
+    description: Telegram bot token
+    required: true
+
   status:
     description: Status text (started, success, failure)
     required: true
@@ -17,8 +25,8 @@ runs:
     - uses: appleboy/telegram-action@master
       if: inputs.status == 'started'
       with:
-        to: ${{ secrets.CHAT_ID }}
-        token: ${{ secrets.BOT_TOKEN }}
+        to: ${{ inputs.chat_id }}
+        token: ${{ inputs.bot_token }}
         format: Markdown
         message: |
           🚀 Workflow *${{ github.workflow }}* started
@@ -31,8 +39,8 @@ runs:
     - uses: appleboy/telegram-action@master
       if: inputs.status == 'success'
       with:
-        to: ${{ secrets.CHAT_ID }}
-        token: ${{ secrets.BOT_TOKEN }}
+        to: ${{ inputs.chat_id }}
+        token: ${{ inputs.bot_token }}
         format: Markdown
         message: |
           Workflows ${{ inputs.phase }}
@@ -46,8 +54,8 @@ runs:
     - uses: appleboy/telegram-action@master
       if: inputs.status == 'failure'
       with:
-        to: ${{ secrets.CHAT_ID }}
-        token: ${{ secrets.BOT_TOKEN }}
+        to: ${{ inputs.chat_id }}
+        token: ${{ inputs.bot_token }}
         format: Markdown
         message: |
           Workflows ${{ inputs.phase }}
